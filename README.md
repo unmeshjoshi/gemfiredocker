@@ -18,5 +18,5 @@
   + ```start server --name=server2 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/data/server2```  
   + ```connect --locator=172.17.0.2[9009]```
 * In the locator container run following command
-  ```create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7```
-  ```create region --name=MarketPrices --type=PARTITION_PERSISTENT --total-num-buckets=7```
+  + ```create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7```
+  + ```create region --name=MarketPrices --type=PARTITION_PERSISTENT --total-num-buckets=7```
