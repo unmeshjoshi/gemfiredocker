@@ -1,4 +1,5 @@
 archive/*
+!archive/.gitkeep
 locator*
 server*
 checkpoint
