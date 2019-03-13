@@ -48,3 +48,38 @@
     + ```bash-4.4# tc -s qdisc```
     * Observe server2 logs. It reconnects to cluster and gets all the new configuration from locator including deployed jars
  
+ 
+ To start a separate cluster and configuring gateway/receiver 
+ 
+ Start two clusters one as above and one as following
+ 
+ In gemfire.properties of one cluster add following 
+ log-level=info
+ distributed-system-id=1
+ remote-locators=172.17.0.5[9009]
+ 
+ In gemfire.properties of another cluster add following
+ log-level=info
+ distributed-system-id=2
+ remote-locators=172.17.0.2[9009]
+
+ 
+ start locator --name=locator2 --port=9009 --mcast-port=0 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --dir=/data/locator2
+ start server --name=server4 --mcast-port=0 --locators="172.17.0.5[9009]" --server-port=8085 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --dir=/data/server4
+ start server --name=server5 --mcast-port=0 --locators="172.17.0.5[9009]" --server-port=8085 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --dir=/data/server5
+ connect --locator=172.17.0.5[9009]
+ 
+ create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence --disk-store-name=DEFAULT
+ create gateway-receiver 
+ alter region --name=Positions --gateway-sender-id=parallelPositionPersist
+ alter region --name=Positions --gateway-sender-id="parallelPositionPersist1"
+ 
+ create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store=DEFAULT
+
+ create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store-name=DEFAULT 
+ 
+ alter region --name=Positions --gateway-sender-id=parallelPositionPersist 
+  
+ remote-locators=172.17.0.2[9009]
+ 
+ remote-locators=172.17.0.5[9009]
