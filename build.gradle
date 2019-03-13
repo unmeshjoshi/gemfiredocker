@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+
+sourceCompatibility = 1.8 // java 8
+targetCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compileOnly "org.apache.geode:geode-core:1.2.0"
+  testCompile "junit:junit:4.12"
+}

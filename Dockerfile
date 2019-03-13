@@ -10,6 +10,7 @@ EXPOSE 8080 10334 40404 1099 7070
 # Make sure to have gemfire downloaded in archive directory
 COPY archive/pivotal-gemfire-${Version}.tar.gz /
 RUN apk add bash
+RUN apk add iproute2
 RUN tar -xvzf /pivotal-gemfire-${Version}.tar.gz
 RUN rm -f /pivotal-gemfire-${Version}.tar.gz
 COPY provisioning/* /pivotal-gemfire-${Version}/config/

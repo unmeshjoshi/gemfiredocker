@@ -1,3 +1,7 @@
+build
+.vscode
+.gradle
+gradle*
 data/*
 !data/.gitkeep
 archive/*
