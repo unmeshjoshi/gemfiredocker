@@ -20,19 +20,6 @@ public class Multiply implements Function {
         LogService.getLogger().error(this);
     }
 
-    private void printCallerStack(final String message) {
-        ByteArrayOutputStream baos = getCallerStack(message);
-        LogService.getLogger().error(new String(baos.toByteArray()));
-    }
-
-    private ByteArrayOutputStream getCallerStack(String function_constructor_called_from_) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PrintStream p = new PrintStream(baos);
-        Exception e = new Exception(function_constructor_called_from_);
-        e.printStackTrace(p);
-        return baos;
-    }
-
     @Override
     public boolean hasResult() {
         return true;
@@ -91,5 +78,19 @@ public class Multiply implements Function {
     @Override
     public boolean isHA() {
         return false;
+    }
+
+
+    private void printCallerStack(final String message) {
+        ByteArrayOutputStream baos = getCallerStack(message);
+        LogService.getLogger().error(new String(baos.toByteArray()));
+    }
+
+    private ByteArrayOutputStream getCallerStack(String message) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream p = new PrintStream(baos);
+        Exception e = new Exception(message);
+        e.printStackTrace(p);
+        return baos;
     }
 }
