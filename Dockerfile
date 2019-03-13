@@ -13,7 +13,6 @@ RUN apk add bash
 RUN apk add iproute2
 RUN tar -xvzf /pivotal-gemfire-${Version}.tar.gz
 RUN rm -f /pivotal-gemfire-${Version}.tar.gz
-COPY provisioning/* /pivotal-gemfire-${Version}/config/
 ENV GEMFIRE_HOME /pivotal-gemfire-${Version}
 ENV PATH $PATH:$GEMFIRE_HOME/bin
 VOLUME /data

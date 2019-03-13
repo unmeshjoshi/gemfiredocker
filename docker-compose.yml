@@ -1,0 +1,47 @@
+version: '3.0'
+
+services:
+  locator1:
+    image: gemfire91
+    container_name: locator1
+    networks:
+      - internal
+    ports:
+      - "10334:10334"
+      - "7070:7070"
+    volumes:
+      - ./data:/data
+      - ./provisioning:/config
+    command: /bin/bash -c 'gfsh -e "start locator --name=locator1 --mcast-port=0 --properties-file=/config/gemfire.properties --dir=/data/locator1" && tail -f /dev/null'
+
+  server1:
+    image: gemfire91
+    container_name: server1
+    networks:
+      - internal
+    ports:
+      - "40404:40404"
+    volumes:
+      - ./data:/data
+      - ./provisioning:/config
+    depends_on:
+      - locator1
+    command: /bin/bash -c 'sleep 20 && gfsh -e "start server --name=server1 --mcast-port=0 --locators="locator1[10334]" --properties-file=/config/gemfire.properties --dir=/data/server1" && tail -f /dev/null'
+
+  server2:
+    image: gemfire91
+    container_name: server2
+    networks:
+      - internal
+    ports:
+      - "40405:40404"
+    volumes:
+      - ./data:/data
+      - ./provisioning:/config
+    depends_on:
+      - locator1
+    command: /bin/bash -c 'sleep 20 && gfsh -e "start server --name=server2 --mcast-port=0 --locators="locator1[10334]" --properties-file=/config/gemfire.properties --dir=/data/server2" && tail -f /dev/null'
+
+networks:
+  internal:
+    driver: bridge
