@@ -44,17 +44,11 @@ public class Multiply implements Function {
 
         BaseArgs args = (BaseArgs) o;
 
+        LogService.getLogger().info("args = " + args);
 
-
-        System.out.println("args = " + args);
         Integer first = (Integer) ((MultArgs)args).getI1();
         Integer second = (Integer) ((MultArgs)args).getI2();
-        try {
-            LogService.getLogger().info("Function sleeping for 4 minutes");
-            Thread.sleep(1000); //sleep for 4 minutes
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         LogService.getLogger().info("Function returning result " + this.getClass() + " loaded from " + this.getClass().getClassLoader());
 
         rctx.getResultSender().lastResult(first * second);

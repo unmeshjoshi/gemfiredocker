@@ -74,8 +74,7 @@
  alter region --name=Positions --gateway-sender-id=parallelPositionPersist
  alter region --name=Positions --gateway-sender-id="parallelPositionPersist1"
  
- create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store=DEFAULT
-
+ 
  create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store-name=DEFAULT 
  
  alter region --name=Positions --gateway-sender-id=parallelPositionPersist 
