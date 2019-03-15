@@ -4,6 +4,7 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
+import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.logging.LogService;
 import org.apache.geode.pdx.PdxInstance;
 
@@ -27,12 +28,17 @@ public class Multiply implements Function {
 
     @Override
     public void execute(FunctionContext context) {
-//        //flushing classcache to make sure we do not reload old classes
-//        InternalDataSerializer.flushClassCache();
+        //flushing classcache to make sure we do not reload old classes
+        getCachedPdxParameterClass("com.gemfire.functions.MultArgs");
 
-        RegionFunctionContext rctx = (RegionFunctionContext)context;
+        LogService.getLogger().info("Flushing Class Cache");
+        InternalDataSerializer.flushClassCache();
+
+        getCachedPdxParameterClass("com.gemfire.functions.MultArgs");
+
+        RegionFunctionContext rctx = (RegionFunctionContext) context;
         Region<Object, Object> dataSet = rctx.getDataSet();
-        Object o = ((PdxInstance)context.getArguments()).getObject();
+        Object o = ((PdxInstance) context.getArguments()).getObject();
         LogService.getLogger().info(o.getClass() + " loaded from " + getClassLoaderJar(o.getClass()));
         printCallerStack("Function execution called from");
         LogService.getLogger().info("Thread context classloader is " + Thread.currentThread().getContextClassLoader());
@@ -46,12 +52,23 @@ public class Multiply implements Function {
 
         LogService.getLogger().info("args = " + args);
 
-        Integer first = (Integer) ((MultArgs)args).getI1();
-        Integer second = (Integer) ((MultArgs)args).getI2();
+        Integer first = (Integer) ((MultArgs) args).getI1();
+        Integer second = (Integer) ((MultArgs) args).getI2();
 
         LogService.getLogger().info("Function returning result " + this.getClass() + " loaded from " + this.getClass().getClassLoader());
 
         rctx.getResultSender().lastResult(first * second);
+    }
+
+    private void getCachedPdxParameterClass(String className) {
+        Class<?> cachedClass = null;
+        try {
+            cachedClass = InternalDataSerializer.getCachedClass(className);
+            LogService.getLogger().info(cachedClass + " loaded from " + getClassLoaderJar(cachedClass));
+
+        } catch (ClassNotFoundException e) {
+            LogService.getLogger().info(getStackTraceFor(e));
+        }
     }
 
     private List<URL> getClassLoaderJar(Class clazz) {
@@ -76,15 +93,17 @@ public class Multiply implements Function {
 
 
     private void printCallerStack(final String message) {
-        ByteArrayOutputStream baos = getCallerStack(message);
-        LogService.getLogger().error(new String(baos.toByteArray()));
+        LogService.getLogger().error(getCallerStack(message));
     }
 
-    private ByteArrayOutputStream getCallerStack(String message) {
+    private String getCallerStack(String message) {
+        return getStackTraceFor(new Exception(message));
+    }
+
+    private String getStackTraceFor(Exception e) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream p = new PrintStream(baos);
-        Exception e = new Exception(message);
         e.printStackTrace(p);
-        return baos;
+        return new String(baos.toByteArray());
     }
 }
