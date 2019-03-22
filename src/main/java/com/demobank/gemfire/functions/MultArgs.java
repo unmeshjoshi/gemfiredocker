@@ -1,4 +1,4 @@
-package com.gemfire.functions;
+package com.demobank.gemfire.functions;
 
 public class MultArgs extends BaseArgs {
     private int i1;

@@ -1,4 +1,4 @@
-package com.gemfire.functions;
+package com.demobank.gemfire.functions;
 
 import org.junit.Test;
 

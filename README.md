@@ -8,7 +8,7 @@
 * ```docker run --name server2 --hostname=server2 -v $(pwd)/data/:/data/ --cap-add=NET_ADMIN -it gemfire91 /bin/bash```
 * In the locator container run following command
   + ```gfsh```
-  + ```gfsh> start locator --name=locator1 --port=9009 --mcast-port=0 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties   --dir=/data/locator1```
+  + ```gfsh> start locator --name=locator1 --port=9009 --J=-Dgemfire.distributed-system-id=1 --mcast-port=0 --dir=/data/locator1```
 * In server1 container run following command. MAKE SURE THAT SERVER START/STOP is done from server containers gfsh and not from locator gfsh. Else While starting the server it starts servers on locator node.
   + ```gfsh```
   + ```start server --name=server1 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --dir=/data/server1```
@@ -63,22 +63,44 @@
  distributed-system-id=2
  remote-locators=172.17.0.2[9009]
 
+docker run --name locator1 --hostname=locator1 -v $(pwd)/data/:/data/ -it gemfire91 /bin/bash
+docker run --name server1 --hostname=server1 -v $(pwd)/data/:/data/  --cap-add=NET_ADMIN -it gemfire91 /bin/bash
+docker run --name server2 --hostname=server2 -v $(pwd)/data/:/data/  --cap-add=NET_ADMIN -it gemfire91 /bin/bash
+
+docker run --name locator2 --hostname=locator2 -v $(pwd)/data/:/data/ -it gemfire91 /bin/bash
+docker run --name server4 --hostname=server4 -v $(pwd)/data/:/data/  --cap-add=NET_ADMIN -it gemfire91 /bin/bash
+docker run --name server5 --hostname=server5 -v $(pwd)/data/:/data/  --cap-add=NET_ADMIN -it gemfire91 /bin/bash
+
+
  
- start locator --name=locator2 --port=9009 --mcast-port=0 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --dir=/data/locator2
- start server --name=server4 --mcast-port=0 --locators="172.17.0.5[9009]" --server-port=8085 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --dir=/data/server4
- start server --name=server5 --mcast-port=0 --locators="172.17.0.5[9009]" --server-port=8085 --properties-file=/pivotal-gemfire-9.1.0/config/gemfire.properties --dir=/data/server5
+start locator --name=locator1 --port=9009 --J=-Dgemfire.distributed-system-id=1 --J=-Dgemfire.remote-locators=172.17.0.5[9009] --mcast-port=0 --dir=/data/locator1
+start server --J=-Xloggc:/data/server1/gc.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/data/server1
+start server --J=-Xloggc:/data/server2/gc.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/data/server2
+connect --locator=172.17.0.2[9009]
+configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.gemfire.functions.*,com.gemfire.models.*
+create region --name=Positions --type=PARTITION_PERSISTENT
+create region --name=Transactions --type=PARTITION_PERSISTENT
+create region --name=MarketPrices --type=PARTITION_PERSISTENT
+ create region --name=FxRates --type=PARTITION_PERSISTENT
+ 
+  
+ start locator --name=locator2 --port=9009 --mcast-port=0 --J=-Dgemfire.distributed-system-id=2 --dir=/data/locator2
+ start server --name=server4 --mcast-port=0 --locators="172.17.0.5[9009]" --server-port=8085  --dir=/data/server4
+ start server --name=server5 --mcast-port=0 --locators="172.17.0.5[9009]" --server-port=8085  --dir=/data/server5
  connect --locator=172.17.0.5[9009]
  
- create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence --disk-store-name=DEFAULT
- create gateway-receiver 
- alter region --name=Positions --gateway-sender-id=parallelPositionPersist
- alter region --name=Positions --gateway-sender-id="parallelPositionPersist1"
- 
- 
- create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store-name=DEFAULT 
- 
- alter region --name=Positions --gateway-sender-id=parallelPositionPersist 
+ configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.gemfire.functions.*,com.gemfire.models.*
+ create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7
+ create region --name=MarketPrices --type=PARTITION_PERSISTENT --total-num-buckets=7
+ create region --name=FxRates --type=PARTITION_PERSISTENT --total-num-buckets=7
   
+  create disk-store --name=gateway_store --dir=gateway_store  
+  create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store-name=gateway_store 
+  alter region --name=Positions --gateway-sender-id=parallelPositionPersist 
+ 
+  On locator2 execute following
+  create gateway-receiver 
+ 
  remote-locators=172.17.0.2[9009]
  
  remote-locators=172.17.0.5[9009]
