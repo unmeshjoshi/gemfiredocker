@@ -74,8 +74,8 @@ docker run --name server5 --hostname=server5 -v $(pwd)/data/:/data/  --cap-add=N
 
  
 start locator --name=locator1 --port=9009 --J=-Dgemfire.distributed-system-id=1 --J=-Dgemfire.remote-locators=172.17.0.5[9009] --mcast-port=0 --dir=/data/locator1
-start server --J=-Xloggc:/data/server1/gc.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/data/server1
-start server --J=-Xloggc:/data/server2/gc.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/data/server2
+start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server1/gc.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/data/server1
+start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server2/gc.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="172.17.0.2[9009]" --server-port=8085 --dir=/data/server2
 connect --locator=172.17.0.2[9009]
 configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.gemfire.functions.*,com.gemfire.models.*
 create region --name=Positions --type=PARTITION_PERSISTENT
@@ -104,3 +104,20 @@ create region --name=MarketPrices --type=PARTITION_PERSISTENT
  remote-locators=172.17.0.2[9009]
  
  remote-locators=172.17.0.5[9009]
+ 
+ 
+ start locator --name=locator1 --port=9009 --J=-Dgemfire.distributed-system-id=1 --mcast-port=0 
+ 
+ 
+  connect --locator=localhost[9009]
+
+ //cms
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8085
+ 
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:gc2 --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8086
+ 
+ //g1gc
+ 
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g  --J=-XX:+UseG1GC  --J=-Xloggc:gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8085
+  
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:+UseG1GC --J=-Xloggc:gc2.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8086
