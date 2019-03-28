@@ -90,9 +90,11 @@ create region --name=MarketPrices --type=PARTITION_PERSISTENT
  connect --locator=172.17.0.5[9009]
  
  configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.gemfire.functions.*,com.gemfire.models.*
- create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7
- create region --name=MarketPrices --type=PARTITION_PERSISTENT --total-num-buckets=7
- create region --name=FxRates --type=PARTITION_PERSISTENT --total-num-buckets=7
+ create region --name=Positions --type=PARTITION_PERSISTENT --total-num-buckets=7 --off-heap
+ create region --name=MarketPrices --type=PARTITION_PERSISTENT --total-num-buckets=7 --off-heap
+ create region --name=FxRates --type=PARTITION_PERSISTENT --total-num-buckets=7 --off-heap
+ create region --name=Transactions --type=PARTITION_PERSISTENT --off-heap
+
   
   create disk-store --name=gateway_store --dir=gateway_store  
   create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store-name=gateway_store 
@@ -112,12 +114,12 @@ create region --name=MarketPrices --type=PARTITION_PERSISTENT
   connect --locator=localhost[9009]
 
  //cms
- start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8085
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --off-heap-memory-size=2g --J=-XX:InitialHeapSize=2g --J=-XX:MaxHeapSize=2g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8085
  
- start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:gc2 --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8086
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --off-heap-memory-size=2g --J=-XX:InitialHeapSize=2g --J=-XX:MaxHeapSize=2g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:gc2 --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8086
  
  //g1gc
  
- start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g  --J=-XX:+UseG1GC  --J=-Xloggc:gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8085
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --off-heap-memory-size=2g --J=-XX:InitialHeapSize=2g --J=-XX:MaxHeapSize=2g --J=-XX:+UseG1GC  --J=-Xloggc:gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8085
   
- start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:+UseG1GC --J=-Xloggc:gc2.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8086
+ start server --J=-agentpath:/home/unmesh/softwares/YourKit-JavaProfiler-2019.1/bin/linux-x86-64/libyjpagent.so=disablestacktelemetry,exceptions=disable,delay=10000 --off-heap-memory-size=2g --J=-XX:InitialHeapSize=2g --J=-XX:MaxHeapSize=2g --J=-XX:+UseG1GC --J=-Xloggc:gc2.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="192.168.0.119[9009]" --server-port=8086
