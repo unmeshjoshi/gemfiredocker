@@ -16,4 +16,6 @@ RUN rm -f /pivotal-gemfire-${Version}.tar.gz
 ENV GEMFIRE_HOME /pivotal-gemfire-${Version}
 ENV PATH $PATH:$GEMFIRE_HOME/bin
 VOLUME /data
+COPY wait_for.sh /
+RUN chmod 777 /wait_for.sh && ls -alh /wait_for.sh
 CMD ["gfsh"]
