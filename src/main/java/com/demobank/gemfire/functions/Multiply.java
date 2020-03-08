@@ -6,7 +6,6 @@ import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
 import org.apache.geode.internal.InternalDataSerializer;
 import org.apache.geode.internal.logging.LogService;
-import org.apache.geode.pdx.PdxInstance;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -28,17 +27,9 @@ public class Multiply implements Function {
 
     @Override
     public void execute(FunctionContext context) {
-        //flushing classcache to make sure we do not reload old classes
-        getCachedPdxParameterClass("com.gemfire.functions.MultArgs");
-
-        LogService.getLogger().info("Flushing Class Cache");
-        InternalDataSerializer.flushClassCache();
-
-        getCachedPdxParameterClass("com.gemfire.functions.MultArgs");
-
         RegionFunctionContext rctx = (RegionFunctionContext) context;
         Region<Object, Object> dataSet = rctx.getDataSet();
-        Object o = ((PdxInstance) context.getArguments()).getObject();
+        Object o = context.getArguments();
         LogService.getLogger().info(o.getClass() + " loaded from " + getClassLoaderJar(o.getClass()));
         printCallerStack("Function execution called from");
         LogService.getLogger().info("Thread context classloader is " + Thread.currentThread().getContextClassLoader());
