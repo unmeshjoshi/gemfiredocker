@@ -14,8 +14,8 @@ services:
       - /bin/bash
       - -c
       - |
-        gfsh -e "start locator --name=locator1 --port=9009 --J=-Dgemfire.distributed-system-id=1 --J=-Dgemfire.remote-locators=locator2[9009] --mcast-port=0 --dir=/data/locator1"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.gemfire.functions.*,com.gemfire.models.*"
+        gfsh -e "start locator --name=locator1 --port=9009 --J=-Dgemfire.distributed-system-id=1 --mcast-port=0 --dir=/data/locator1"
+        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.demobank.gemfire.models.*"
         tail -100 -f /data/locator1/locator1.log
   server1:
     image: gemfire91
@@ -45,84 +45,21 @@ services:
       - internal
     volumes:
       - ./data:/data
+      - ./build:/build
       - ./provisioning:/config
     command:
-      # All the regions need to be created after all the servers are up. So creating them from server2 container
+#       All the regions need to be created after all the servers are up. So creating them from server2 container
       - /bin/bash
       - -c
       - |
         /wait_for.sh locator1 1099
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "start server --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server2/gc2.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="locator1[9009]" --server-port=8085 --dir=/data/server2"
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=Positions --type=PARTITION_PERSISTENT"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=Positions_Staging --type=PARTITION_PERSISTENT"
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=Transactions --type=PARTITION_PERSISTENT"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=Transactions_Staging --type=PARTITION_PERSISTENT"
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=MarketPrices --type=PARTITION_PERSISTENT"
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=FxRates --type=PARTITION_PERSISTENT"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create disk-store --name=gateway_store --dir=gateway_store"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create gateway-sender --id=parallelPositionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store-name=gateway_store"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create gateway-sender --id=parallelTransactionPersist --parallel=true --remote-distributed-system-id=2 --enable-persistence=true --disk-store-name=gateway_store"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "alter region --name=Positions --gateway-sender-id=parallelPositionPersist"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "alter region --name=Transactions --gateway-sender-id=parallelTransactionPersist"
+        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "deploy --jar=/build/libs/gemfiredocker.jar"
         tail -100 -f /data/server2/server2.log
-  locator2:
-    image: gemfire91
-    container_name: locator2
-    hostname: locator2
-    networks:
-      - internal
-    volumes:
-      - ./data:/data
-      - ./provisioning:/config
-    command:
-      - /bin/bash
-      - -c
-      - |
-        gfsh -e "start locator --name=locator2 --port=9009 --J=-Dgemfire.distributed-system-id=2 --J=-Dgemfire.remote-locators=locator1[9009] --mcast-port=0 --dir=/data/locator2"
-        gfsh -e "connect --user=test --password=test --locator=locator2[9009]" -e "configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.gemfire.functions.*,com.gemfire.models.*"
-        tail -100 -f /data/locator2/locator2.log
-  server3:
-    image: gemfire91
-    container_name: server3
-    hostname: server3
-    depends_on:
-      - "locator2"
-    networks:
-      - internal
-    volumes:
-      - ./data:/data
-      - ./provisioning:/config
-    command:
-      - /bin/bash
-      - -c
-      - |
-        ./wait_for.sh locator2 1099
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "start server --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server3/gc3.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server3 --mcast-port=0 --locators="locator2[9009]" --server-port=8085 --dir=/data/server3"
-        tail -100 -f /data/server3/server3.log
-  server4:
-     image: gemfire91
-     container_name: server4
-     hostname: server4
-     depends_on:
-       - "locator2"
-     networks:
-       - internal
-     volumes:
-       - ./data:/data
-       - ./provisioning:/config
-     command:
-       # All the regions need to be created after all the servers are up. So creating them from server2 container
-       - /bin/bash
-       - -c
-       - |
-         /wait_for.sh locator2 1099
-         gfsh -e "connect --user=test --password=test --jmx-manager=locator2[1099]" -e "start server --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server4/gc4.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server4 --mcast-port=0 --locators="locator2[9009]" --server-port=8085 --dir=/data/server4"
-         gfsh -e "connect --user=test --password=test --jmx-manager=locator2[1099]" -e "create region --name=Positions --type=PARTITION_PERSISTENT"
-         gfsh -e "connect --user=test --password=test --jmx-manager=locator2[1099]" -e "create region --name=Transactions --type=PARTITION_PERSISTENT"
-         gfsh -e "connect --user=test --password=test --jmx-manager=locator2[1099]" -e "create region --name=MarketPrices --type=PARTITION_PERSISTENT"
-         gfsh -e "connect --user=test --password=test --jmx-manager=locator2[1099]" -e "create region --name=FxRates --type=PARTITION_PERSISTENT"
-         gfsh -e "connect --user=test --password=test --jmx-manager=locator2[1099]" -e "create gateway-receiver"
-         tail -100 -f /data/server4/server4.log
   dns-server:
     image: defreitas/dns-proxy-server
     hostname: dns.mageddo

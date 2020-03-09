@@ -9,12 +9,14 @@ import org.apache.geode.pdx.ReflectionBasedAutoSerializer;
 public class ClientCacheProvider {
     public static GemFireCache instance = createClientCache();
     private static GemFireCache createClientCache() {
-        ClientCache clientCache = new ClientCacheFactory().addPoolLocator("172.17.0.2", 9009)
-                .setPdxSerializer(new ReflectionBasedAutoSerializer("com.gemfire.functions.*"))
+        ClientCache clientCache = new ClientCacheFactory().addPoolLocator("locator1", 9009)
+                .setPdxSerializer(new ReflectionBasedAutoSerializer("com.demobank.gemfire.models.*,com.gemfire.demobank.functions.*"))
+                .setPdxReadSerialized(true)
                 .setPoolMinConnections(50)
                 .create();
 
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions");
+        clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Transactions");
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("FxRates");
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("MarketPrices");
         return clientCache;

@@ -1,12 +1,14 @@
 package com.demobank.gemfire.functions;
 
-public class MultArgs extends BaseArgs {
+import java.io.Serializable;
+
+public class MultArgs extends BaseArgs implements Serializable {
     private int i1;
     private int i2;
 
     public MultArgs(){
-
     }
+
     public MultArgs(int i1, int i2) {
 
         this.i1 = i1;

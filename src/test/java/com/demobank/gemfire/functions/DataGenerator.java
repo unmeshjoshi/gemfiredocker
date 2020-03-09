@@ -2,13 +2,25 @@ package com.demobank.gemfire.functions;
 
 import com.demobank.gemfire.models.Position;
 import com.demobank.gemfire.models.PositionType;
+import com.demobank.gemfire.models.Transaction;
 import com.demobank.gemfire.repository.PositionCache;
+import com.demobank.gemfire.repository.TransactionCache;
+
+import java.util.List;
 
 public class DataGenerator {
     private PositionCache positionCache;
+    private TransactionCache transactionCache;
 
-    public DataGenerator(PositionCache positionCache) {
+    public DataGenerator(PositionCache positionCache, TransactionCache transactionCache) {
         this.positionCache = positionCache;
+        this.transactionCache = transactionCache;
+    }
+
+
+    public void seedData() {
+        seedPositions();
+        seedTransactions();
     }
 
     public void seedPositions() {
@@ -21,4 +33,21 @@ public class DataGenerator {
             positionCache.add(new Position(i, PositionType.SAVING, "9928894277", "EQUITY", "INVESTMENT", "26510", 9439, "555", new java.math.BigDecimal(6710203), "INR", "2018-01-28"));
         }
     }
+
+    public void seedTransactions() {
+        String transactionDate = "2020-02-02";
+        String accountNumber = "9952388700";
+        String key = accountNumber + "_" + transactionDate;
+        transactionCache.add(key, newTransactionsEntry(accountNumber, transactionDate));
+    }
+
+
+    private List<Transaction> newTransactionsEntry(String accountNumber, String transactionDate) {
+        List<Transaction> transactions = new java.util.ArrayList<Transaction>();
+        for (int i = 0; i < 100; i++) {
+            transactions.add(new Transaction("tranId_" + i, transactionDate, "100", "Taxes", accountNumber));
+        }
+        return transactions;
+    }
+
 }
