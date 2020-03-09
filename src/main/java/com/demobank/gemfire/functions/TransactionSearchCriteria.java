@@ -1,19 +1,20 @@
 package com.demobank.gemfire.functions;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class TransactionSearchCriteria implements Serializable {
+    private List<String> accountIds;
+    private List<String> dates;
     private String transactionType;
-    private String accountId;
-    private String date;
     private int recordsPerPage = 2;
     private int page;
 
-    public TransactionSearchCriteria(){}
+    private TransactionSearchCriteria(){}
 
-    public TransactionSearchCriteria(String accountId, String date, int page) {
-        this.accountId = accountId;
-        this.date = date;
+    public TransactionSearchCriteria(List<String> accountIds, List<String> dates, int page) {
+        this.accountIds = accountIds;
+        this.dates = dates;
         this.page = page;
     }
 
@@ -22,16 +23,16 @@ public class TransactionSearchCriteria implements Serializable {
         return this;
     }
 
+    public List<String> getAccountIds() {
+        return accountIds;
+    }
+
+    public List<String> getDates() {
+        return dates;
+    }
+
     public String getTransactionType() {
         return transactionType;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public String getDate() {
-        return date;
     }
 
     public int getRecordsPerPage() {

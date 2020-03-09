@@ -7,6 +7,7 @@ import org.apache.geode.pdx.PdxInstance;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -20,14 +21,20 @@ public class RemoteTransactionSearchTest extends BaseGemfireTest {
         GemFireCache cache = ClientCacheProvider.instance;
         positionCache = new PositionCache(cache);
         transactionCache = new TransactionCache(cache);
-        new DataGenerator(positionCache, transactionCache).seedData();
+
+//        should be run only once per cluster setup.
+//        DataGenerator dataGenerator = new DataGenerator(positionCache, transactionCache);
+//        dataGenerator.seedPositions();
+//        dataGenerator.seedTransactions("2020-02-02", "9952388700");
+//        dataGenerator.seedTransactions("2020-02-03", "8977388888");
+
     }
 
     @Test
     public void getTransactionsForGivenCriteria() {
         TransactionSearchCriteria transactionSearchCriteria
-                = new TransactionSearchCriteria("9952388700", "2020-02-02", 1);
+                = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388888"), Arrays.asList("2020-02-02", "2020-02-03"), 1);
         List<PdxInstance> transactions = transactionCache.getTransactions(transactionSearchCriteria);
-        assertEquals(100, transactions.size());
+        assertEquals(200, transactions.size());
     }
 }

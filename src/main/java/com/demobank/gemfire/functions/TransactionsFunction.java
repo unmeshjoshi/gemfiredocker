@@ -9,7 +9,10 @@ import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.internal.logging.LogService;
 import org.apache.geode.pdx.PdxInstance;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionsFunction  implements Function {
     @Override
@@ -25,14 +28,35 @@ public class TransactionsFunction  implements Function {
         Region<String, List<PdxInstance>> localData = PartitionRegionHelper.getLocalData(dataSet);
 
         TransactionSearchCriteria criteria = (TransactionSearchCriteria)context.getArguments();
-        String key = criteria.getAccountId() + "_" + criteria.getDate();
+        List<String> accountIds = criteria.getAccountIds();
 
-        List<PdxInstance> transactions  = localData.get(key);
+        List<String> keys = new ArrayList<>();
+        for (String accountId : accountIds) {
+            keys.addAll(buildKeys(accountId, criteria.getDates()));
+        }
+
+        Map<String, List<PdxInstance>> all = localData.getAll(keys);
+
+        List<PdxInstance> allTransactions = new ArrayList<>();
+        Collection<List<PdxInstance>> values = all.values();
+        for (List<PdxInstance> value : values) {
+            if (value != null) {
+                allTransactions.addAll(value);
+            }
+        }
 
         LogService.getLogger().info("Function returning result " + this.getClass() + " loaded from " + this.getClass().getClassLoader());
 
         ResultSender resultSender = rctx.getResultSender();
-        resultSender.lastResult(transactions);
+        resultSender.lastResult(allTransactions);
+    }
+
+    private List<String> buildKeys(String accountId, List<String> dates) {
+        List<String> keys = new ArrayList<>();
+        for (String date : dates) {
+            keys.add(accountId + "_" + date);
+        }
+        return keys;
     }
 
     @Override

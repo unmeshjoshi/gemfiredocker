@@ -31,6 +31,10 @@ public class PositionCache {
     public void add(Position position) {
         positionRegion.put(position.key(), position);
     }
+
+    public void clear() {
+        positionRegion.clear();
+    }
 }
 
 

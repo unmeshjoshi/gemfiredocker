@@ -23,8 +23,8 @@ public class BaseGemfireTest {
                     .setPdxDiskStore("DEFAULT")
                     .create();
 
-            cache.createRegionFactory(RegionShortcut.PARTITION).setOffHeap(true).create("Positions");
-            cache.createRegionFactory(RegionShortcut.PARTITION).setOffHeap(true).create("Transactions");
+            cache.createRegionFactory(RegionShortcut.PARTITION).create("Positions");
+            cache.createRegionFactory(RegionShortcut.PARTITION).create("Transactions");
             cache.createRegionFactory(RegionShortcut.REPLICATE).create("FxRates");
             cache.createRegionFactory(RegionShortcut.REPLICATE).create("MarketPrices");
             cache.createRegionFactory(RegionShortcut.PARTITION).create("Visibility");

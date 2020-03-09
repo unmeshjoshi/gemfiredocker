@@ -20,7 +20,7 @@ public class DataGenerator {
 
     public void seedData() {
         seedPositions();
-        seedTransactions();
+        seedTransactions("2020-02-02", "9952388700");
     }
 
     public void seedPositions() {
@@ -34,9 +34,7 @@ public class DataGenerator {
         }
     }
 
-    public void seedTransactions() {
-        String transactionDate = "2020-02-02";
-        String accountNumber = "9952388700";
+    public void seedTransactions(String transactionDate, String accountNumber) {
         String key = accountNumber + "_" + transactionDate;
         transactionCache.add(key, newTransactionsEntry(accountNumber, transactionDate));
     }
