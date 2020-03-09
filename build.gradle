@@ -9,6 +9,6 @@ repositories {
 }
 
 dependencies {
-  compile "org.apache.geode:geode-core:1.2.0"
+  compile "org.apache.geode:geode-core:1.8.0"
   testCompile "junit:junit:4.12"
 }

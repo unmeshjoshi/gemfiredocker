@@ -1,7 +1,7 @@
 version: '3.0'
 services:
   locator1:
-    image: gemfire91
+    image: gemfire973
     container_name: locator1
     hostname: locator1
     networks:
@@ -18,7 +18,7 @@ services:
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.demobank.gemfire.models.*"
         tail -100 -f /data/locator1/locator1.log
   server1:
-    image: gemfire91
+    image: gemfire973
     container_name: server1
     hostname: server1
     depends_on:
@@ -36,7 +36,7 @@ services:
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "start server --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server1/gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="locator1[9009]" --server-port=8085 --dir=/data/server1"
         tail -100 -f /data/server1/server1.log
   server2:
-    image: gemfire91
+    image: gemfire973
     container_name: server2
     hostname: server2
     depends_on:
