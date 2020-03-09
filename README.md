@@ -1,9 +1,10 @@
 # Instructions to setup two, two node gemfire clusters to simulate WAN replication
 
 ## Installation
-* Downloads gemfire 9.1.0 tar.gz package from https://network.pivotal.io/products/pivotal-gemfire. You need to register/login to download.
+* Downloads gemfire 9.1.0 tar package from https://network.pivotal.io/products/pivotal-gemfire. You need to register/login to download.
 * Move the tar.gz file into this project's ```archive``` folder.
-    * ```mv ~/Downloads/pivotal-gemfire-9.1.0.tar.gz ./archive/```
+    * ```mv ~/Downloads/pivotal-gemfire-9.1.0.tar ./archive/```
+    * ```gzip ./archive/pivotal-gemfire-9.1.0.tar```
 * ```docker build -t gemfire91 .```
 * ```docker-compose up```
     + This sets up two gemfire clusters with WAN replication enabled. For details have a look at docker-compose.yml.
