@@ -4,15 +4,15 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
-import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.internal.logging.LogService;
 import org.apache.geode.pdx.PdxInstance;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TransactionsFunction  implements Function {
     @Override
@@ -23,41 +23,35 @@ public class TransactionsFunction  implements Function {
     @Override
     public void execute(FunctionContext context) {
         RegionFunctionContext rctx = (RegionFunctionContext) context;
-        Region<String, List<PdxInstance>> dataSet = rctx.getDataSet();
+        TransactionSearchCriteria searchCriteria = (TransactionSearchCriteria) context.getArguments();
+        List<String> keys = searchCriteria.getKeys();
 
-        Region<String, List<PdxInstance>> localData = PartitionRegionHelper.getLocalData(dataSet);
-
-        TransactionSearchCriteria criteria = (TransactionSearchCriteria)context.getArguments();
-        List<String> accountIds = criteria.getAccountIds();
-
-        List<String> keys = new ArrayList<>();
-        for (String accountId : accountIds) {
-            keys.addAll(buildKeys(accountId, criteria.getDates()));
-        }
-
-        Map<String, List<PdxInstance>> all = localData.getAll(keys);
-
-        List<PdxInstance> allTransactions = new ArrayList<>();
-        Collection<List<PdxInstance>> values = all.values();
-        for (List<PdxInstance> value : values) {
-            if (value != null) {
-                allTransactions.addAll(value);
-            }
-        }
+        Region<String, List<PdxInstance>> localData = getLocalData(rctx);
+        List<PdxInstance> allTransactions = getTransactionsFor(localData, keys);
 
         LogService.getLogger().info("Function returning result " + this.getClass() + " loaded from " + this.getClass().getClassLoader());
 
-        ResultSender resultSender = rctx.getResultSender();
-        resultSender.lastResult(allTransactions);
+        sendResult(rctx, allTransactions);
     }
 
-    private List<String> buildKeys(String accountId, List<String> dates) {
-        List<String> keys = new ArrayList<>();
-        for (String date : dates) {
-            keys.add(accountId + "_" + date);
-        }
-        return keys;
+    private void sendResult(RegionFunctionContext rctx, List<PdxInstance> allTransactions) {
+        rctx.getResultSender().lastResult(allTransactions);
     }
+
+    private List<PdxInstance> getTransactionsFor(Region<String, List<PdxInstance>> localData, List<String> keys) {
+        Map<String, List<PdxInstance>> all = localData.getAll(keys);
+        return filterNulls(all.values()).flatMap(x -> x.stream()).collect(Collectors.toList());
+        //filter null values for some keys.
+    }
+
+    private Stream<List<PdxInstance>> filterNulls(Collection<List<PdxInstance>> values) {
+        return values.stream().filter(x -> x != null);
+    }
+
+    private Region<String, List<PdxInstance>> getLocalData(RegionFunctionContext rctx) {
+        return PartitionRegionHelper.getLocalData(rctx.getDataSet());
+    }
+
 
     @Override
     public String getId() {

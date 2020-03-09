@@ -3,6 +3,7 @@ package com.demobank.gemfire.functions;
 import com.demobank.gemfire.models.Position;
 import com.demobank.gemfire.models.PositionType;
 import com.demobank.gemfire.models.Transaction;
+import com.demobank.gemfire.models.TransactionKey;
 import com.demobank.gemfire.repository.PositionCache;
 import com.demobank.gemfire.repository.TransactionCache;
 
@@ -35,7 +36,7 @@ public class DataGenerator {
     }
 
     public void seedTransactions(String transactionDate, String accountNumber) {
-        String key = accountNumber + "_" + transactionDate;
+        String key = new TransactionKey(accountNumber, transactionDate).toString();
         transactionCache.add(key, newTransactionsEntry(accountNumber, transactionDate));
     }
 

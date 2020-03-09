@@ -1,6 +1,9 @@
 package com.demobank.gemfire.functions;
 
+import com.demobank.gemfire.models.TransactionKey;
+
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionSearchCriteria implements Serializable {
@@ -41,5 +44,23 @@ public class TransactionSearchCriteria implements Serializable {
 
     public int getPage() {
         return page;
+    }
+
+    public List<String> getKeys() {
+        List<String> accountIds = getAccountIds();
+
+        List<String> keys = new ArrayList<>();
+        for (String accountId : accountIds) {
+            keys.addAll(buildKeys(accountId, getDates()));
+        }
+        return keys;
+    }
+
+    private List<String> buildKeys(String accountId, List<String> dates) {
+        List<String> keys = new ArrayList<>();
+        for (String date : dates) {
+            keys.add(new TransactionKey(accountId, date).toString());
+        }
+        return keys;
     }
 }

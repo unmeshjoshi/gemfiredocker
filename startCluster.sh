@@ -1,7 +1,6 @@
 #!/bin/bash
 
-docker-compose down
-
-rm -rf ./data/locator1 ./data/server1 ./data/server2
+#Make sure to do a clean build so that latest classes are deployed on the server
+./gradlew clean compileJava jar
 
 docker-compose up -d
