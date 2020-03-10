@@ -1,17 +1,18 @@
-package com.demobank.gemfire.functions;
+package com.demobank.gemfire.repository;
 
-import com.demobank.gemfire.repository.PositionCache;
-import com.demobank.gemfire.repository.TransactionCache;
+import com.demobank.gemfire.functions.BaseGemfireTest;
+import com.demobank.gemfire.functions.DataGenerator;
+import com.demobank.gemfire.functions.Page;
+import com.demobank.gemfire.functions.TransactionSearchCriteria;
 import org.apache.geode.cache.Cache;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class EmbeddedTransactionSearchTest extends BaseGemfireTest {
+public class EmbeddedClientTest extends BaseGemfireTest {
     PositionCache positionCache;
     private TransactionCache transactionCache;
 
@@ -27,13 +28,13 @@ public class EmbeddedTransactionSearchTest extends BaseGemfireTest {
     }
 
     @Test
-    public void getTransactionsForGivenCriteria() {
+    public void shouldGetRequestedPageFromAllTheServerPages() {
+        Client client = new Client(transactionCache);
+
         TransactionSearchCriteria transactionSearchCriteria
                 = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388700"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
-                    .withRecordsPerPage(10);
-
-        List<Page> transactions = transactionCache.getTransactions(transactionSearchCriteria);
-        assertEquals(1, transactions.size());
-        assertEquals(10, transactions.get(0).getResults().size());
+                .withRecordsPerPage(10);
+        Page firstPage = client.getTransactions(transactionSearchCriteria);
+        assertEquals(10, firstPage.getResults().size());
     }
 }

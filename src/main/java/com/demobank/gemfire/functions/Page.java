@@ -5,7 +5,7 @@ import java.util.List;
 public class Page {
     int totalNumberOfPages;
     int pageNumber;
-    List<?> results;
+    private List<?> results;
 
     public Page(){}
 

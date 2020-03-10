@@ -11,15 +11,14 @@ import static org.apache.geode.distributed.ConfigurationProperties.MCAST_PORT;
 
 public class BaseGemfireTest {
 
-    Cache createCache() {
+    public Cache createCache() {
             Properties props = new Properties();
             props.setProperty(MCAST_PORT, "0");
 
             CacheFactory factory = new CacheFactory(props);
             Cache cache = factory
-                    .set("off-heap-memory-size", "200m")
-                    .setPdxReadSerialized(true)
                     .setPdxSerializer(new ReflectionBasedAutoSerializer("com.demobank.gemfire.functions.*", "com.demobank.gemfire.models.*"))
+                    .setPdxReadSerialized(true)
                     .setPdxDiskStore("DEFAULT")
                     .create();
 

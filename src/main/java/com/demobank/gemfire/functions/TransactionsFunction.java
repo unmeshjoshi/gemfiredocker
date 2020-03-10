@@ -35,7 +35,7 @@ public class TransactionsFunction  implements Function {
     }
 
     private void sendResult(RegionFunctionContext rctx, Page page) {
-        LogService.getLogger().info("Returning page " + page.results);
+        LogService.getLogger().info("Returning page " + page.getResults());
         rctx.getResultSender().lastResult(page);
     }
 
