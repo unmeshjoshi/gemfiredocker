@@ -10,9 +10,9 @@ public class ClientCacheProvider {
     public static GemFireCache instance = createClientCache();
     private static GemFireCache createClientCache() {
         ClientCache clientCache = new ClientCacheFactory().addPoolLocator("locator1", 9009)
-                .setPdxSerializer(new ReflectionBasedAutoSerializer("com.demobank.gemfire.models.*,com.gemfire.demobank.functions.*"))
                 .setPdxReadSerialized(true)
-                .setPoolMinConnections(50)
+                .setPdxSerializer(new ReflectionBasedAutoSerializer("com.demobank.gemfire.models.*,com.gemfire.demobank.functions.*"))
+                .setPoolMinConnections(1)
                 .create();
 
         clientCache.createClientRegionFactory(ClientRegionShortcut.PROXY).create("Positions");

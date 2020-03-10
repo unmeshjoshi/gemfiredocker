@@ -30,12 +30,13 @@ public class TransactionsFunction  implements Function {
         List<PdxInstance> allTransactions = getTransactionsFor(localData, keys);
 
         LogService.getLogger().info("Function returning result " + this.getClass() + " loaded from " + this.getClass().getClassLoader());
-
-        sendResult(rctx, allTransactions);
+        Page page = new PageBuilder(searchCriteria.getRecordsPerPage(), allTransactions).getPage(searchCriteria.getRequestedPage());
+        sendResult(rctx, page);
     }
 
-    private void sendResult(RegionFunctionContext rctx, List<PdxInstance> allTransactions) {
-        rctx.getResultSender().lastResult(allTransactions);
+    private void sendResult(RegionFunctionContext rctx, Page page) {
+        LogService.getLogger().info("Returning page " + page.results);
+        rctx.getResultSender().lastResult(page);
     }
 
     private List<PdxInstance> getTransactionsFor(Region<String, List<PdxInstance>> localData, List<String> keys) {

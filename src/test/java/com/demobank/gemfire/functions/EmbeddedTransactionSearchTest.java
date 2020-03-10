@@ -3,7 +3,6 @@ package com.demobank.gemfire.functions;
 import com.demobank.gemfire.repository.PositionCache;
 import com.demobank.gemfire.repository.TransactionCache;
 import org.apache.geode.cache.Cache;
-import org.apache.geode.pdx.PdxInstance;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,8 +29,11 @@ public class EmbeddedTransactionSearchTest extends BaseGemfireTest {
     @Test
     public void getTransactionsForGivenCriteria() {
         TransactionSearchCriteria transactionSearchCriteria
-                = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388700"), Arrays.asList("2020-02-02", "2020-02-03"), 1);
-        List<PdxInstance> transactions = transactionCache.getTransactions(transactionSearchCriteria);
-        assertEquals(200, transactions.size());
+                = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388700"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
+                    .withRecordsPerPage(10);
+
+        List<Page> transactions = transactionCache.getTransactions(transactionSearchCriteria);
+        assertEquals(1, transactions.size());
+        assertEquals(10, transactions.get(0).results.size());
     }
 }

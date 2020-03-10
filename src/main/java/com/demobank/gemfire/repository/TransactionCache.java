@@ -1,5 +1,6 @@
 package com.demobank.gemfire.repository;
 
+import com.demobank.gemfire.functions.Page;
 import com.demobank.gemfire.functions.TransactionSearchCriteria;
 import com.demobank.gemfire.functions.TransactionsFunction;
 import com.demobank.gemfire.models.Transaction;
@@ -7,10 +8,9 @@ import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Execution;
 import org.apache.geode.cache.execute.FunctionService;
-import org.apache.geode.pdx.PdxInstance;
+import org.apache.geode.pdx.internal.PdxInstanceImpl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class TransactionCache {
@@ -26,13 +26,17 @@ public class TransactionCache {
         transactionRegion.put(key, transactions);
     }
 
-    public List<PdxInstance> getTransactions(TransactionSearchCriteria criteria) {
+
+    public List<Page> getTransactions(TransactionSearchCriteria criteria) {
         TransactionsFunction function = new TransactionsFunction();
         Execution execution = FunctionService.onRegion(transactionRegion).withArgs(criteria);
         List result = (List) execution.execute(function).getResult();
-        List<PdxInstance> mergedResult = new ArrayList<>();
+        List<Page> mergedResult = new ArrayList<>();
         for (Object o : result) {
-            mergedResult.addAll((Collection<? extends PdxInstance>) o);
+            PdxInstanceImpl pageInstace = (PdxInstanceImpl)o;
+            mergedResult.add(new Page((Integer)pageInstace.getField("pageNumber"),
+                    (List)pageInstace.getField("results"),
+                    (Integer)pageInstace.getField("totalNumberOfPages")));
         }
         return mergedResult;
     }

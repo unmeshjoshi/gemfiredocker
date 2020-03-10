@@ -10,15 +10,20 @@ public class TransactionSearchCriteria implements Serializable {
     private List<String> accountIds;
     private List<String> dates;
     private String transactionType;
-    private int recordsPerPage = 2;
-    private int page;
+    private int recordsPerPage = 100;
+    private int requestedPage;
 
     private TransactionSearchCriteria(){}
 
-    public TransactionSearchCriteria(List<String> accountIds, List<String> dates, int page) {
+    public TransactionSearchCriteria(List<String> accountIds, List<String> dates, int requestedPage) {
         this.accountIds = accountIds;
         this.dates = dates;
-        this.page = page;
+        this.requestedPage = requestedPage;
+    }
+
+    public TransactionSearchCriteria withRecordsPerPage(int recordsPerPage) {
+        this.recordsPerPage = recordsPerPage;
+        return this;
     }
 
     public TransactionSearchCriteria withTransactionType(String transactionType) {
@@ -42,8 +47,8 @@ public class TransactionSearchCriteria implements Serializable {
         return recordsPerPage;
     }
 
-    public int getPage() {
-        return page;
+    public int getRequestedPage() {
+        return requestedPage;
     }
 
     public List<String> getKeys() {

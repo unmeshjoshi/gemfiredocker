@@ -15,7 +15,7 @@ services:
       - -c
       - |
         gfsh -e "start locator --name=locator1 --port=9009 --J=-Dgemfire.distributed-system-id=1 --mcast-port=0 --dir=/data/locator1"
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.demobank.gemfire.models.*"
+        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "configure pdx --disk-store=DEFAULT --read-serialized=true --auto-serializable-classes=com.demobank.gemfire.functions.*,com.demobank.gemfire.models.*"
         tail -100 -f /data/locator1/locator1.log
   server1:
     image: gemfire973
