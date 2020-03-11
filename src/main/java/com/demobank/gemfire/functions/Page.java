@@ -3,14 +3,14 @@ package com.demobank.gemfire.functions;
 import java.util.List;
 import java.util.Optional;
 
-public class Page {
+public class Page<T> {
     int totalNumberOfPages;
     int pageNumber;
-    private List<?> results;
+    private List<T> results;
 
     public Page(){}
 
-    public Page(int pageNumber, List<?> results, int totalNumberOfPages) {
+    public Page(int pageNumber, List<T> results, int totalNumberOfPages) {
         this.pageNumber = pageNumber;
         this.results = results;
         this.totalNumberOfPages = totalNumberOfPages;
@@ -20,7 +20,7 @@ public class Page {
         return pageNumber;
     }
 
-    public List<?> getResults() {
+    public List<T> getResults() {
         return results;
     }
 
@@ -33,5 +33,13 @@ public class Page {
             return Optional.of(results.get(results.size() - 1));
         }
         return Optional.empty();
+    }
+
+    public T firstRecord() {
+        return results.get(0);
+    }
+
+    public T lastRecord() {
+        return results.get(results.size() - 1);
     }
 }

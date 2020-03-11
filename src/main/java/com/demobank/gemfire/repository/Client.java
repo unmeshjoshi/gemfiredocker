@@ -7,24 +7,24 @@ import com.demobank.gemfire.functions.TransactionSearchCriteria;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class Client {
-    private TransactionCache transactionCache;
+class Client<T> {
+    private TransactionCache<T> transactionCache;
 
-    public Client(TransactionCache transactionCache) {
+    public Client(TransactionCache<T> transactionCache) {
         this.transactionCache = transactionCache;
     }
 
-    public Page getTransactions(TransactionSearchCriteria criteria) {
-        List<Page> pagesFromServers = transactionCache.getTransactions(criteria);
-        List<?> allRecords = mergeAllRecords(pagesFromServers);
+    public Page<T> getTransactions(TransactionSearchCriteria criteria) {
+        List<Page<T>> pagesFromServers = transactionCache.getTransactions(criteria);
+        List<T> allRecords = mergeAllRecords(pagesFromServers);
         return createClientPage(allRecords, criteria.getRecordsPerPage(), criteria.getRequestedPage());
     }
 
-    private Page createClientPage(List<?> allRecords, int recordsPerPage, int requestedPage) {
+    private Page createClientPage(List<T> allRecords, int recordsPerPage, int requestedPage) {
         return new PageBuilder(recordsPerPage, allRecords).getPage(requestedPage);
     }
 
-    private List<?> mergeAllRecords(List<Page> pagesFromServers) {
+    private List<T> mergeAllRecords(List<Page<T>> pagesFromServers) {
         return pagesFromServers.stream().flatMap(p -> p.getResults().stream()).collect(Collectors.toList());
     }
 }

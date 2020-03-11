@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class StubTransactionCache implements TransactionCache {
+public class StubTransactionCache implements TransactionCache<Transaction> {
     Map<TransactionKey, List<Transaction>> transactions = new HashMap<>();
 
     public int getTotalLength() {
@@ -26,8 +26,8 @@ public class StubTransactionCache implements TransactionCache {
     }
 
     @Override
-    public List<Page> getTransactions(TransactionSearchCriteria criteria) {
-        List<Page> pages = new ArrayList();
+    public List<Page<Transaction>> getTransactions(TransactionSearchCriteria criteria) {
+        List<Page<Transaction>> pages = new ArrayList();
         pages.add(getPage(criteria));
         return pages;
     }

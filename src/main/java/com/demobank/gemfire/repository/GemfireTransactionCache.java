@@ -14,7 +14,7 @@ import org.apache.geode.pdx.internal.PdxInstanceImpl;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GemfireTransactionCache implements TransactionCache {
+public class GemfireTransactionCache implements TransactionCache<PdxInstanceImpl> {
     private final Region transactionRegion;
     private GemFireCache clientCache;
 
@@ -30,13 +30,13 @@ public class GemfireTransactionCache implements TransactionCache {
 
 
     @Override
-    public List<Page> getTransactions(TransactionSearchCriteria criteria) {
+    public List<Page<PdxInstanceImpl>> getTransactions(TransactionSearchCriteria criteria) {
         List result = executeFunction(criteria);
         return collectPagesFromServers(result);
     }
 
-    private List<Page> collectPagesFromServers(List result) {
-        List<Page> mergedResult = new ArrayList<>();
+    private List<Page<PdxInstanceImpl>> collectPagesFromServers(List result) {
+        List<Page<PdxInstanceImpl>> mergedResult = new ArrayList<>();
         for (Object o : result) {
             mergedResult.add(getPageInstance(o));
         }

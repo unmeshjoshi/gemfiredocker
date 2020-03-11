@@ -7,10 +7,10 @@ import com.demobank.gemfire.models.TransactionKey;
 
 import java.util.List;
 
-public interface TransactionCache {
+public interface TransactionCache<T> {
     void add(TransactionKey key, List<Transaction> transactions);
 
-    List<Page> getTransactions(TransactionSearchCriteria criteria);
+    List<Page<T>> getTransactions(TransactionSearchCriteria criteria);
 
     void clear();
 }
