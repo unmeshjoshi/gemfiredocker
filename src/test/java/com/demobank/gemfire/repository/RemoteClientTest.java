@@ -14,7 +14,7 @@ public class RemoteClientTest {
     //Transactions and Positions regions are partitioned and can not be programmatically cleared
     @Test
     public void getTransactionsForGivenCriteria() {
-        TransactionCache transactionCache = new TransactionCache(ClientCacheProvider.instance);
+        TransactionCache transactionCache = new GemfireTransactionCache(ClientCacheProvider.instance);
         Client client = new Client(transactionCache);
 
         TransactionSearchCriteria transactionSearchCriteria

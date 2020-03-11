@@ -5,6 +5,7 @@ import com.demobank.gemfire.models.TransactionKey;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TransactionSearchCriteria implements Serializable {
     private List<String> accountIds;
@@ -12,6 +13,7 @@ public class TransactionSearchCriteria implements Serializable {
     private String transactionType;
     private int recordsPerPage = 100;
     private int requestedPage;
+    Optional<Object> lastRecord;
 
     private TransactionSearchCriteria(){}
 
@@ -28,6 +30,11 @@ public class TransactionSearchCriteria implements Serializable {
 
     public TransactionSearchCriteria withTransactionType(String transactionType) {
         this.transactionType = transactionType;
+        return this;
+    }
+
+    public TransactionSearchCriteria withLastRecord(Optional<Object> lastRecord) {
+        this.lastRecord = lastRecord;
         return this;
     }
 
@@ -51,21 +58,30 @@ public class TransactionSearchCriteria implements Serializable {
         return requestedPage;
     }
 
-    public List<String> getKeys() {
+    public List<TransactionKey> getKeys() {
         List<String> accountIds = getAccountIds();
 
-        List<String> keys = new ArrayList<>();
+        List<TransactionKey> keys = new ArrayList<>();
         for (String accountId : accountIds) {
             keys.addAll(buildKeys(accountId, getDates()));
         }
         return keys;
     }
 
-    private List<String> buildKeys(String accountId, List<String> dates) {
-        List<String> keys = new ArrayList<>();
+    private List<TransactionKey> buildKeys(String accountId, List<String> dates) {
+        List<TransactionKey> keys = new ArrayList<>();
         for (String date : dates) {
-            keys.add(new TransactionKey(accountId, date).toString());
+            keys.add(new TransactionKey(accountId, date));
         }
         return keys;
+    }
+
+    public Optional<Object> getLastRecord() {
+        return lastRecord;
+    }
+
+    public TransactionSearchCriteria nextPage(Optional<Object> lastRecord) {
+        return new TransactionSearchCriteria(accountIds, dates, requestedPage + 1).withRecordsPerPage(recordsPerPage)
+                .withLastRecord(lastRecord);
     }
 }

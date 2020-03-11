@@ -2,7 +2,7 @@ package com.demobank.gemfire.models;
 
 public class Transaction {
 
-    private String transactionId;
+    private Long transactionId;
     private String date;
     private String amount;
     private String type;
@@ -11,7 +11,7 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(String transactionId, String date, String amount, String type, String accountNumber) {
+    public Transaction(Long transactionId, String date, String amount, String type, String accountNumber) {
         this.transactionId = transactionId;
         this.date = date;
         this.amount = amount;
@@ -19,7 +19,7 @@ public class Transaction {
         this.accountNumber = accountNumber;
     }
 
-    public String getTransactionId() {
+    public Long getTransactionId() {
         return transactionId;
     }
 
@@ -37,5 +37,16 @@ public class Transaction {
 
     public String getAccountNumber() {
         return accountNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "transactionId='" + transactionId + '\'' +
+                ", date='" + date + '\'' +
+                ", amount='" + amount + '\'' +
+                ", type='" + type + '\'' +
+                ", accountNumber='" + accountNumber + '\'' +
+                '}';
     }
 }

@@ -1,5 +1,6 @@
 package com.demobank.gemfire.functions;
 
+import com.demobank.gemfire.repository.GemfireTransactionCache;
 import com.demobank.gemfire.repository.TransactionCache;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ public class RemoteTransactionSearchTest extends BaseGemfireTest {
     //Transactions and Positions regions are partitioned and can not be programmatically cleared
     @Test
     public void getTransactionsForGivenCriteria() {
-        TransactionCache transactionCache = new TransactionCache(ClientCacheProvider.instance);
+        TransactionCache transactionCache = new GemfireTransactionCache(ClientCacheProvider.instance);
         TransactionSearchCriteria transactionSearchCriteria
                 = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388888"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
                 .withRecordsPerPage(10);

@@ -36,15 +36,15 @@ public class DataGenerator {
     }
 
     public void seedTransactions(String transactionDate, String accountNumber) {
-        String key = new TransactionKey(accountNumber, transactionDate).toString();
+        TransactionKey key = new TransactionKey(accountNumber, transactionDate);
         transactionCache.add(key, newTransactionsEntry(accountNumber, transactionDate));
     }
 
-
+    private static long transationId = 0l;
     private List<Transaction> newTransactionsEntry(String accountNumber, String transactionDate) {
         List<Transaction> transactions = new java.util.ArrayList<Transaction>();
         for (int i = 0; i < 100; i++) {
-            transactions.add(new Transaction("tranId_" + i, transactionDate, "100", "Taxes", accountNumber));
+            transactions.add(new Transaction(transationId++, transactionDate, "100", "Taxes", accountNumber));
         }
         return transactions;
     }

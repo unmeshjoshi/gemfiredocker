@@ -1,6 +1,7 @@
 package com.demobank.gemfire.functions;
 
-import com.demobank.gemfire.repository.PositionCache;
+import com.demobank.gemfire.repository.GemfireTransactionCache;
+import com.demobank.gemfire.repository.PositionCacheImpl;
 import com.demobank.gemfire.repository.TransactionCache;
 import org.apache.geode.cache.GemFireCache;
 
@@ -8,8 +9,8 @@ public class DataSeeder {
      public static void main(String []args) {
 //        should be run only once per cluster setup.
         GemFireCache cache = ClientCacheProvider.instance;
-        PositionCache positionCache = new PositionCache(cache);
-        TransactionCache transactionCache = new TransactionCache(cache);
+        PositionCacheImpl positionCache = new PositionCacheImpl(cache);
+        TransactionCache transactionCache = new GemfireTransactionCache(cache);
         DataGenerator dataGenerator = new DataGenerator(positionCache, transactionCache);
         dataGenerator.seedPositions();
         dataGenerator.seedTransactions("2020-02-02", "9952388700");

@@ -22,6 +22,10 @@ public class PageBuilder {
         }
 
         int pageStartIndex = (requestedPage - 1) * recordsPerPage;
+        return getPageStartingAt(requestedPage, pageStartIndex);
+    }
+
+    public Page getPageStartingAt(int requestedPage, int pageStartIndex) {
         int pageEndIndex = pageStartIndex + recordsPerPage;
         int totalNumberOfRecords = allRecords.size();
 
@@ -32,9 +36,7 @@ public class PageBuilder {
             recordsForPage.add(allRecords.get(i));
         }
 
-
-
-        return new Page(requestedPage, recordsForPage, totalNumberOfPages);
+        return new Page(requestedPage, recordsForPage, -1);
     }
 
     public int getTotalNumberOfPages() {
