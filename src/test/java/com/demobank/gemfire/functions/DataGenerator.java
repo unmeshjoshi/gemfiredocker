@@ -10,23 +10,8 @@ import com.demobank.gemfire.repository.TransactionCache;
 import java.util.List;
 
 public class DataGenerator {
-    private PositionCache positionCache;
-    private TransactionCache transactionCache;
 
-    public DataGenerator() {}
-
-    public DataGenerator(PositionCache positionCache, TransactionCache transactionCache) {
-        this.positionCache = positionCache;
-        this.transactionCache = transactionCache;
-    }
-
-
-    public void seedData() {
-        seedPositions();
-        seedTransactions("2020-02-02", "9952388700");
-    }
-
-    public void seedPositions() {
+    public void seedPositions(PositionCache positionCache) {
         for (int i = 0; i < 100; i++) {
             positionCache.add(new Position(i, PositionType.SAVING, "9952388706", "EQUITY", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482), "INR", "2018-01-28"));
             positionCache.add(new Position(i, PositionType.SAVING, "9952388707", "EQUITY_PLUS", "CASH_EQUIVALANT", "92824", 4879, "444", new java.math.BigDecimal(130134482), "INR", "2018-01-28"));
@@ -42,11 +27,7 @@ public class DataGenerator {
         transactionCache.add(key, newTransactionsEntry(accountNumber, transactionDate));
     }
 
-    public void seedTransactions(String transactionDate, String accountNumber) {
-        seedTransactions(transactionCache, transactionDate, accountNumber);
-    }
-
-    private static long transationId = 0l;
+    private long transationId = 0l;
     private List<Transaction> newTransactionsEntry(String accountNumber, String transactionDate) {
         List<Transaction> transactions = new java.util.ArrayList<Transaction>();
         for (int i = 0; i < 100; i++) {

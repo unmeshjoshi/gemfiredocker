@@ -22,10 +22,10 @@ public class EmbeddedClientTest extends BaseGemfireTest {
         Cache cache = createCache();
         positionCache = new PositionCacheImpl(cache);
         transactionCache = new GemfireTransactionCache(cache);
-        DataGenerator dataGenerator = new DataGenerator(positionCache, transactionCache);
-        dataGenerator.seedPositions();
-        dataGenerator.seedTransactions("2020-02-02", "9952388700");
-        dataGenerator.seedTransactions("2020-02-03", "8977388700");
+        DataGenerator dataGenerator = new DataGenerator();
+        dataGenerator.seedPositions(positionCache);
+        dataGenerator.seedTransactions(transactionCache, "2020-02-02", "9952388700");
+        dataGenerator.seedTransactions(transactionCache, "2020-02-03", "8977388700");
     }
 
     @Test
