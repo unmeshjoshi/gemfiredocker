@@ -10,7 +10,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -70,12 +69,11 @@ public class MultiServerSortingAndPaginationTest {
 
         assertEquals(20, pageList.size());
 
-        List<?> results = lastPage(pageList).getResults();
+        List<Transaction> results = lastPage(pageList).getResults();
         assertEquals(results.size(), 10);
-        Transaction t = (Transaction) lastRecord(results);
 
         assertPageSequence(pageList);
-        assertEquals(Optional.of(199l), Optional.of(t.getTransactionId()));
+        assertTrue(199l == lastRecord(results).getTransactionId());
     }
 
     private void assertPageSequence(List<Page<Transaction>> pageList) {
@@ -95,7 +93,7 @@ public class MultiServerSortingAndPaginationTest {
         return (Page<Transaction>)lastRecord(pageList);
     }
 
-    private Object lastRecord(List<?> pageList) {
+    private <T> T lastRecord(List<T> pageList) {
         return pageList.get(pageList.size() - 1);
     }
 
