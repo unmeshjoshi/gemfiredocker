@@ -13,6 +13,8 @@ public class DataGenerator {
     private PositionCache positionCache;
     private TransactionCache transactionCache;
 
+    public DataGenerator() {}
+
     public DataGenerator(PositionCache positionCache, TransactionCache transactionCache) {
         this.positionCache = positionCache;
         this.transactionCache = transactionCache;
@@ -35,9 +37,13 @@ public class DataGenerator {
         }
     }
 
-    public void seedTransactions(String transactionDate, String accountNumber) {
+    public void seedTransactions(TransactionCache transactionCache, String transactionDate, String accountNumber) {
         TransactionKey key = new TransactionKey(accountNumber, transactionDate);
         transactionCache.add(key, newTransactionsEntry(accountNumber, transactionDate));
+    }
+
+    public void seedTransactions(String transactionDate, String accountNumber) {
+        seedTransactions(transactionCache, transactionDate, accountNumber);
     }
 
     private static long transationId = 0l;

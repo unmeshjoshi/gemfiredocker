@@ -56,9 +56,9 @@ public class MultiServerSortingAndPaginationTest {
         StubTransactionCache server1 = new StubTransactionCache();
         StubTransactionCache server2 = new StubTransactionCache();
 
-        StubPositionCache positionCache = new StubPositionCache();
-        new DataGenerator(positionCache, server1).seedTransactions("2020-02-02", "9952388700");
-        new DataGenerator(positionCache, server2).seedTransactions("2020-02-03", "8977388700");
+        DataGenerator dataGenerator = new DataGenerator();
+        dataGenerator.seedTransactions(server1,"2020-02-02", "9952388700"); //seeds hundred transactions
+        dataGenerator.seedTransactions(server2,"2020-02-03", "8977388700");
 
         StubClient client = new StubClient(Arrays.asList(server1, server2));
 
