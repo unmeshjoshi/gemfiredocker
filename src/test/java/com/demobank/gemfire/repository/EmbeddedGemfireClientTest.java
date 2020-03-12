@@ -5,20 +5,22 @@ import com.demobank.gemfire.functions.DataGenerator;
 import com.demobank.gemfire.functions.Page;
 import com.demobank.gemfire.functions.TransactionSearchCriteria;
 import org.apache.geode.cache.Cache;
-import org.junit.Before;
+import org.apache.geode.pdx.PdxInstance;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class EmbeddedClientTest extends BaseGemfireTest {
-    PositionCacheImpl positionCache;
-    private TransactionCache transactionCache;
+public class EmbeddedGemfireClientTest extends BaseGemfireTest {
+    private static PositionCacheImpl positionCache;
+    private static TransactionCache transactionCache;
 
-    @Before
-    public void seedData() {
+    @BeforeClass
+    public static void seedData() {
         Cache cache = createCache();
         positionCache = new PositionCacheImpl(cache);
         transactionCache = new GemfireTransactionCache(cache);
@@ -30,28 +32,29 @@ public class EmbeddedClientTest extends BaseGemfireTest {
 
     @Test
     public void shouldGetRequestedPageFromAllTheServerPages() {
-        Client client = new Client(transactionCache);
+        GemfireClient gemfireClient = new GemfireClient(transactionCache);
 
         TransactionSearchCriteria transactionSearchCriteria
                 = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388700"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
                 .withRecordsPerPage(10);
-        Page firstPage = client.getTransactions(transactionSearchCriteria);
+        Page firstPage = gemfireClient.getTransactions(transactionSearchCriteria);
         assertEquals(10, firstPage.getResults().size());
     }
 
     @Test
     public void shouldGetNextRequestedPageFromAllTheServerPages() {
-        Client client = new Client(transactionCache);
+        GemfireClient gemfireClient = new GemfireClient(transactionCache);
 
-        TransactionSearchCriteria transactionSearchCriteria
+        TransactionSearchCriteria<PdxInstance> transactionSearchCriteria
                 = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388700"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
                 .withRecordsPerPage(10);
-        Page firstPage = client.getTransactions(transactionSearchCriteria);
-        Optional<Object> lastRecord = firstPage.getLastRecord();
+        Page<PdxInstance> firstPage = gemfireClient.getTransactions(transactionSearchCriteria);
+        PdxInstance lastRecord = firstPage.getLastRecord();
 
         TransactionSearchCriteria forNextPage = transactionSearchCriteria.nextPage(lastRecord);
-        Page nextPage = client.getTransactions(forNextPage);
+        Page<PdxInstance> nextPage = gemfireClient.getTransactions(forNextPage);
 
-        assertEquals(10, firstPage.getResults().size());
+        assertEquals(10, nextPage.getResults().size());
+        assertTrue(((BigInteger)firstPage.lastRecord().getField("amount")).compareTo((BigInteger)(nextPage.firstRecord().getField("amount"))) >= 0);
     }
 }

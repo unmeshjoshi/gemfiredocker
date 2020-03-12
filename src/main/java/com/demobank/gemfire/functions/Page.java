@@ -1,7 +1,6 @@
 package com.demobank.gemfire.functions;
 
 import java.util.List;
-import java.util.Optional;
 
 public class Page<T> {
     int totalNumberOfPages;
@@ -28,11 +27,11 @@ public class Page<T> {
         return totalNumberOfPages;
     }
 
-    public Optional<Object> getLastRecord() {
+    public T getLastRecord() {
         if (!results.isEmpty()) {
-            return Optional.of(results.get(results.size() - 1));
+            return results.get(results.size() - 1);
         }
-        return Optional.empty();
+        return null;
     }
 
     public T firstRecord() {

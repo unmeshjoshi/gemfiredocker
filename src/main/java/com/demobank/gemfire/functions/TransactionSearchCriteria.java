@@ -2,21 +2,23 @@ package com.demobank.gemfire.functions;
 
 import com.demobank.gemfire.models.TransactionKey;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-public class TransactionSearchCriteria implements Serializable {
+public class TransactionSearchCriteria<T> {
     private List<String> accountIds;
     private List<String> dates;
     private String transactionType;
     private int recordsPerPage = 100;
     private int requestedPage;
     private TransactionField sortByField = TransactionField.AMOUNT;
-    Optional<Object> lastRecord;
+    //This is always going to be Java object and not PdxInstance for remote invocation.
+    // Can not mix Java types and Pdx Instances. For embedded cache tests, it can be PdxInstance, as it is not serialized to servers.
 
-    private TransactionSearchCriteria(){}
+    T lastRecord;
+
+
+    public TransactionSearchCriteria(){}
 
     public TransactionSearchCriteria(List<String> accountIds, List<String> dates, int requestedPage) {
         this.accountIds = accountIds;
@@ -34,7 +36,7 @@ public class TransactionSearchCriteria implements Serializable {
         return this;
     }
 
-    public TransactionSearchCriteria withLastRecord(Optional<Object> lastRecord) {
+    public TransactionSearchCriteria withLastRecord(T lastRecord) {
         this.lastRecord = lastRecord;
         return this;
     }
@@ -81,11 +83,11 @@ public class TransactionSearchCriteria implements Serializable {
         return keys;
     }
 
-    public Optional<Object> getLastRecord() {
+    public T getLastRecord() {
         return lastRecord;
     }
 
-    public TransactionSearchCriteria nextPage(Optional<Object> lastRecord) {
+    public TransactionSearchCriteria nextPage(T lastRecord) {
         return new TransactionSearchCriteria(accountIds, dates, requestedPage + 1).withRecordsPerPage(recordsPerPage)
                 .withLastRecord(lastRecord);
     }

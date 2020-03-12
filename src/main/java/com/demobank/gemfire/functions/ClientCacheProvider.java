@@ -11,7 +11,7 @@ public class ClientCacheProvider {
     private static GemFireCache createClientCache() {
         ClientCache clientCache = new ClientCacheFactory().addPoolLocator("locator1", 9009)
                 .setPdxReadSerialized(true)
-                .setPdxSerializer(new ReflectionBasedAutoSerializer("com.demobank.gemfire.models.*,com.gemfire.demobank.functions.*"))
+                .setPdxSerializer(new ReflectionBasedAutoSerializer("com.demobank.gemfire.models.*,com.demobank.gemfire.functions.*"))
                 .setPoolMinConnections(1)
                 .create();
 

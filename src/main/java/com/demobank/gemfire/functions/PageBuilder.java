@@ -43,8 +43,13 @@ public class PageBuilder {
         return getTotalNumberOfPages(allRecords.size(), recordsPerPage);
     }
 
+    public Page firstPage() {
+        return getPage(1);
+    }
+
     //TBD. move to utility
     static int getTotalNumberOfPages(int totalNumberOfRecords, int recordsPerPage) {
         return (totalNumberOfRecords / recordsPerPage) + ((totalNumberOfRecords % recordsPerPage) == 0? 0:1);
     }
+
 }

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class StubTransactionCache implements TransactionCache<Transaction> {
@@ -59,8 +58,8 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
     }
 
     private Page getNextPageFromLastRecord(TransactionSearchCriteria criteria, List<Transaction> sortedTransactions) {
-        Optional<Object> lastRecord = criteria.getLastRecord();
-        Transaction lastTransactionFromPreviousPage = (Transaction) lastRecord.get(); //bad
+        Object lastRecord = criteria.getLastRecord();
+        Transaction lastTransactionFromPreviousPage = (Transaction) lastRecord;
         int index = firstIndexMoreThanOrEqual(criteria.getSortByField(), sortedTransactions, lastTransactionFromPreviousPage);
         if (index == -1) {
             return new Page(criteria.getRequestedPage(), new ArrayList(), -1);
