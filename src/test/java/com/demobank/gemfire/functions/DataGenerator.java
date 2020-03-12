@@ -7,7 +7,10 @@ import com.demobank.gemfire.models.TransactionKey;
 import com.demobank.gemfire.repository.PositionCache;
 import com.demobank.gemfire.repository.TransactionCache;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 public class DataGenerator {
 
@@ -27,11 +30,13 @@ public class DataGenerator {
         transactionCache.add(key, newTransactionsEntry(accountNumber, transactionDate));
     }
 
-    private long transationId = 0l;
+    private long tranKey = 0l;
     private List<Transaction> newTransactionsEntry(String accountNumber, String transactionDate) {
         List<Transaction> transactions = new java.util.ArrayList<Transaction>();
         for (int i = 0; i < 100; i++) {
-            transactions.add(new Transaction(transationId++, transactionDate, "100", "Taxes", accountNumber));
+            UUID tranasctionId = UUID.randomUUID();
+            BigInteger randomAmount = BigInteger.valueOf(new Random().nextInt(1000000));
+            transactions.add(new Transaction(tranasctionId.toString(), tranKey++, transactionDate, randomAmount, "Taxes", accountNumber));
         }
         return transactions;
     }

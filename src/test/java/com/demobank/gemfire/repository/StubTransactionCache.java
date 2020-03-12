@@ -2,6 +2,7 @@ package com.demobank.gemfire.repository;
 
 import com.demobank.gemfire.functions.Page;
 import com.demobank.gemfire.functions.PageBuilder;
+import com.demobank.gemfire.functions.TransactionField;
 import com.demobank.gemfire.functions.TransactionSearchCriteria;
 import com.demobank.gemfire.models.Transaction;
 import com.demobank.gemfire.models.TransactionKey;
@@ -42,10 +43,14 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
         transactions.clear();
     }
 
+
     public Page getPage(TransactionSearchCriteria criteria) {
         //sort by amount
         List<Transaction> result = getAllTransactionsFor(criteria);
-        List<Transaction> sortedTransactions = result.stream().sorted((t1, t2) -> t1.getAmount().compareTo(t2.getAmount())).collect(Collectors.toList());
+
+        TransactionField sortByField = criteria.getSortByField();
+
+        List<Transaction> sortedTransactions = result.stream().sorted(sortByField.getComparator()).collect(Collectors.toList());
         if (criteria.getRequestedPage() == 1) {
            return firstPage(criteria, sortedTransactions);
         }
@@ -56,7 +61,7 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
     private Page getNextPageFromLastRecord(TransactionSearchCriteria criteria, List<Transaction> sortedTransactions) {
         Optional<Object> lastRecord = criteria.getLastRecord();
         Transaction lastTransactionFromPreviousPage = (Transaction) lastRecord.get(); //bad
-        int index = firstIndexMoreThanOrEqual(sortedTransactions, lastTransactionFromPreviousPage);
+        int index = firstIndexMoreThanOrEqual(criteria.getSortByField(), sortedTransactions, lastTransactionFromPreviousPage);
         if (index == -1) {
             return new Page(criteria.getRequestedPage(), new ArrayList(), -1);
         }
@@ -67,9 +72,9 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPage(1);
     }
 
-    private int firstIndexMoreThanOrEqual(List<Transaction> sortedTransactions, Transaction lastTransactionFromPreviousPage) {
+    private int firstIndexMoreThanOrEqual(TransactionField sortByField, List<Transaction> sortedTransactions, Transaction lastTransactionFromPreviousPage) {
         for (int i = 0; i < sortedTransactions.size(); i++) {
-             if (sortedTransactions.get(i).getTransactionId() > lastTransactionFromPreviousPage.getTransactionId()) {
+             if (sortByField.getComparator().compare(sortedTransactions.get(i), lastTransactionFromPreviousPage) > 0) {
                    return i;
              }
         }

@@ -13,6 +13,7 @@ public class TransactionSearchCriteria implements Serializable {
     private String transactionType;
     private int recordsPerPage = 100;
     private int requestedPage;
+    private TransactionField sortByField = TransactionField.AMOUNT;
     Optional<Object> lastRecord;
 
     private TransactionSearchCriteria(){}
@@ -56,6 +57,10 @@ public class TransactionSearchCriteria implements Serializable {
 
     public int getRequestedPage() {
         return requestedPage;
+    }
+
+    public TransactionField getSortByField() {
+        return sortByField;
     }
 
     public List<TransactionKey> getKeys() {

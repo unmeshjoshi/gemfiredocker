@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 class StubClient {
     List<StubTransactionCache> servers;
@@ -25,8 +24,12 @@ class StubClient {
     public Page<Transaction> getPage(TransactionSearchCriteria transactionSearchCriteria) {
         List<Page> pagesFromServer = getPagesFromAllServers(transactionSearchCriteria);
         List<Transaction> allTransactions = mergeAllTransactions(pagesFromServer);
-        List<Transaction> sortedTransactions = sortByAmount(allTransactions);
+        List<Transaction> sortedTransactions = sortByAmount(allTransactions, transactionSearchCriteria);
+        //always pick up first page after collecting from all the servers. Each server gives records for one page each.
+        return pickFirstPage(transactionSearchCriteria, sortedTransactions);
+    }
 
+    private Page pickFirstPage(TransactionSearchCriteria transactionSearchCriteria, List<Transaction> sortedTransactions) {
         return new PageBuilder(transactionSearchCriteria.getRecordsPerPage(), sortedTransactions).getPage(1);
     }
 
@@ -39,8 +42,8 @@ class StubClient {
         return pagesFromServer;
     }
 
-    private List<Transaction> sortByAmount(List<Transaction> allTransactions) {
-        return allTransactions.stream().sorted((t1, t2) -> t1.getAmount().compareTo(t2.getAmount())).collect(Collectors.toList());
+    private List<Transaction> sortByAmount(List<Transaction> allTransactions, TransactionSearchCriteria transactionSearchCriteria) {
+        return allTransactions.stream().sorted(transactionSearchCriteria.getSortByField().getComparator()).collect(Collectors.toList());
     }
 
     private List<Transaction> mergeAllTransactions(List<Page> pagesFromServer) {
@@ -71,26 +74,10 @@ public class MultiServerSortingAndPaginationTest {
 
         List<Transaction> results = lastPage(pageList).getResults();
         assertEquals(results.size(), 10);
-
-        assertPageSequence(pageList);
-        assertTrue(199l == lastRecord(results).getTransactionId());
-    }
-
-    private void assertPageSequence(List<Page<Transaction>> pageList) {
-        Page<Transaction> firstPage = pageList.get(0);
-        Long firstId = firstPage.firstRecord().getTransactionId();
-        Long lastId = firstPage.lastRecord().getTransactionId();
-
-        for (int i = 1; i < pageList.size(); i++) {
-            Page<Transaction> page = pageList.get(i);
-            assertTrue(page.firstRecord().getTransactionId() == lastId + 1);
-
-            lastId = page.lastRecord().getTransactionId();
-       }
     }
 
     private Page<Transaction> lastPage(List<Page<Transaction>> pageList) {
-        return (Page<Transaction>)lastRecord(pageList);
+        return lastRecord(pageList);
     }
 
     private <T> T lastRecord(List<T> pageList) {

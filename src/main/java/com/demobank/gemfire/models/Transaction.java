@@ -1,25 +1,29 @@
 package com.demobank.gemfire.models;
 
+import java.math.BigInteger;
+
 public class Transaction {
 
-    private Long transactionId;
+    private String transactionId;
+    private Long tranKey;
     private String date;
-    private String amount;
+    private BigInteger amount;
     private String type;
     private String accountNumber;
 
     public Transaction() {
     }
 
-    public Transaction(Long transactionId, String date, String amount, String type, String accountNumber) {
+    public Transaction(String transactionId, Long tranKey, String date, BigInteger amount, String type, String accountNumber) {
         this.transactionId = transactionId;
+        this.tranKey = tranKey;
         this.date = date;
         this.amount = amount;
         this.type = type;
         this.accountNumber = accountNumber;
     }
 
-    public Long getTransactionId() {
+    public String getTransactionId() {
         return transactionId;
     }
 
@@ -27,7 +31,7 @@ public class Transaction {
         return date;
     }
 
-    public String getAmount() {
+    public BigInteger getAmount() {
         return amount;
     }
 
@@ -39,12 +43,17 @@ public class Transaction {
         return accountNumber;
     }
 
+    public Long getTranKey() {
+        return tranKey;
+    }
+
     @Override
     public String toString() {
         return "Transaction{" +
                 "transactionId='" + transactionId + '\'' +
+                ", tranKey=" + tranKey +
                 ", date='" + date + '\'' +
-                ", amount='" + amount + '\'' +
+                ", amount=" + amount +
                 ", type='" + type + '\'' +
                 ", accountNumber='" + accountNumber + '\'' +
                 '}';
