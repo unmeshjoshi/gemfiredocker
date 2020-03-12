@@ -2,7 +2,7 @@ package com.demobank.gemfire.repository;
 
 import com.demobank.gemfire.functions.Page;
 import com.demobank.gemfire.functions.PageBuilder;
-import com.demobank.gemfire.functions.TransactionField;
+import com.demobank.gemfire.functions.TransactionSortField;
 import com.demobank.gemfire.functions.TransactionSearchCriteria;
 import com.demobank.gemfire.models.Transaction;
 import com.demobank.gemfire.models.TransactionKey;
@@ -47,7 +47,7 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
         //sort by amount
         List<Transaction> result = getAllTransactionsFor(criteria);
 
-        TransactionField sortByField = criteria.getSortByField();
+        TransactionSortField sortByField = criteria.getSortByField();
 
         List<Transaction> sortedTransactions = result.stream().sorted(sortByField.getComparator()).collect(Collectors.toList());
         if (criteria.getRequestedPage() == 1) {
@@ -71,7 +71,7 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPage(1);
     }
 
-    private int firstIndexMoreThanOrEqual(TransactionField sortByField, List<Transaction> sortedTransactions, Transaction lastTransactionFromPreviousPage) {
+    private int firstIndexMoreThanOrEqual(TransactionSortField sortByField, List<Transaction> sortedTransactions, Transaction lastTransactionFromPreviousPage) {
         for (int i = 0; i < sortedTransactions.size(); i++) {
              if (sortByField.getComparator().compare(sortedTransactions.get(i), lastTransactionFromPreviousPage) > 0) {
                    return i;

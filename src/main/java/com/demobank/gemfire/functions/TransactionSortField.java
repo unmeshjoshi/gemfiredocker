@@ -6,7 +6,7 @@ import org.apache.geode.pdx.PdxInstance;
 import java.math.BigInteger;
 import java.util.Comparator;
 
-public enum TransactionField {
+public enum TransactionSortField {
     AMOUNT((Object t1, Object t2) -> {
         int compareResult = getAmount(t2).compareTo(getAmount(t1));
         if (compareResult != 0) {
@@ -38,7 +38,7 @@ public enum TransactionField {
     }
 
     private Comparator<Object> comparator;
-    TransactionField(Comparator<Object> comparator) {
+    TransactionSortField(Comparator<Object> comparator) {
         this.comparator = comparator;
     }
 }

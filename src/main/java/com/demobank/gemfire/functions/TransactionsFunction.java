@@ -55,7 +55,7 @@ public class TransactionsFunction  implements Function {
         return getNextPageFromLastRecord(criteria, sortedTransactions, lastRecord);
     }
 
-    private List<PdxInstance> sortTransactions(List<PdxInstance> result, TransactionField sortByField) {
+    private List<PdxInstance> sortTransactions(List<PdxInstance> result, TransactionSortField sortByField) {
         return result.stream().sorted(sortByField.getComparator()).collect(Collectors.toList());
     }
 
@@ -64,7 +64,7 @@ public class TransactionsFunction  implements Function {
             throw new IllegalArgumentException("Need last record from previous page for getting pages beyond first page");
         }
         int index = firstIndexMoreThanOrEqual(criteria.getSortByField(), sortedTransactions, lastTransactionFromPreviousPage);
-        if (index == -1) {
+        if (index == -1) { // no more records from this node. Return empty list
             return new Page(criteria.getRequestedPage(), new ArrayList(), -1);
         }
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPageStartingAt(criteria.getRequestedPage(), index);
@@ -74,7 +74,7 @@ public class TransactionsFunction  implements Function {
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPage(1);
     }
 
-    private int firstIndexMoreThanOrEqual(TransactionField sortByField, List<PdxInstance> sortedTransactions, PdxInstance lastTransactionFromPreviousPage) {
+    private int firstIndexMoreThanOrEqual(TransactionSortField sortByField, List<PdxInstance> sortedTransactions, PdxInstance lastTransactionFromPreviousPage) {
         for (int i = 0; i < sortedTransactions.size(); i++) {
             if (sortByField.getComparator().compare(sortedTransactions.get(i), lastTransactionFromPreviousPage) > 0) {
                 return i;
@@ -114,6 +114,11 @@ public class TransactionsFunction  implements Function {
         return false;
     }
 
+    /**
+     * A utility class to get criteria object from context.
+     * Its needed because for embedded gemfire in tests, the criteria object is not Pdx (as it is not serialized over the network)
+     * and in case of remote gemfire, it will be pdx instance.
+     */
     private class SearchCriteriaWrapper {
         private FunctionContext context;
         private TransactionSearchCriteria searchCriteria;

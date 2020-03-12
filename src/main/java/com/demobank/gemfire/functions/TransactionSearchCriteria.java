@@ -11,7 +11,7 @@ public class TransactionSearchCriteria<T> {
     private String transactionType;
     private int recordsPerPage = 100;
     private int requestedPage;
-    private TransactionField sortByField = TransactionField.AMOUNT;
+    private TransactionSortField sortByField = TransactionSortField.AMOUNT;
     //This is always going to be Java object and not PdxInstance for remote invocation.
     // Can not mix Java types and Pdx Instances. For embedded cache tests, it can be PdxInstance, as it is not serialized to servers.
 
@@ -61,7 +61,7 @@ public class TransactionSearchCriteria<T> {
         return requestedPage;
     }
 
-    public TransactionField getSortByField() {
+    public TransactionSortField getSortByField() {
         return sortByField;
     }
 
