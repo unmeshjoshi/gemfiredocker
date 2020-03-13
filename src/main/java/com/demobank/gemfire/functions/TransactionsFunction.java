@@ -11,6 +11,7 @@ import org.apache.geode.pdx.PdxInstance;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class TransactionsFunction  implements Function {
         //Need to get searchcriteria. In case of embedded tests its Java object and in case of remote tests its PdxInstance.
         SearchCriteriaWrapper searchCriteriaWrapper = new SearchCriteriaWrapper(context);
 
-        TransactionSearchCriteria searchCriteria = searchCriteriaWrapper.getSearchCriteria();
+        TransactionFilterCriteria searchCriteria = searchCriteriaWrapper.getSearchCriteria();
         PdxInstance lastRecord = searchCriteriaWrapper.getLastRecord();
 
         Region<String, List<PdxInstance>> localData = getLocalData(rctx);
@@ -44,9 +45,9 @@ public class TransactionsFunction  implements Function {
         rctx.getResultSender().lastResult(page);
     }
 
-    public Page getPage(TransactionSearchCriteria criteria, Region<String, List<PdxInstance>> localData, PdxInstance lastRecord) {
+    public Page getPage(TransactionFilterCriteria criteria, Region<String, List<PdxInstance>> localData, PdxInstance lastRecord) {
         List<PdxInstance> result = getTransactionsFor(localData, criteria.getKeys());
-        List<PdxInstance> sortedTransactions = sortTransactions(result, criteria.getSortByField());
+        List<PdxInstance> sortedTransactions = sortTransactions(result, criteria.getSortByField(), criteria.getSortOrder());
 
         if (criteria.getRequestedPage() == 1) {
             return firstPage(criteria, sortedTransactions);
@@ -55,28 +56,37 @@ public class TransactionsFunction  implements Function {
         return getNextPageFromLastRecord(criteria, sortedTransactions, lastRecord);
     }
 
-    private List<PdxInstance> sortTransactions(List<PdxInstance> result, TransactionSortField sortByField) {
-        return result.stream().sorted(sortByField.getComparator()).collect(Collectors.toList());
+    private List<PdxInstance> sortTransactions(List<PdxInstance> result, TransactionSortField sortByField, SortOrder sortOrder) {
+        Comparator<Object> comparator = sortByField.getComparator();
+        return (List<PdxInstance>) result.stream().sorted(new SortOrderBasedComparatorDecorator(sortOrder, comparator)).collect(Collectors.toList());
     }
 
-    private Page getNextPageFromLastRecord(TransactionSearchCriteria criteria, List<PdxInstance> sortedTransactions, PdxInstance lastTransactionFromPreviousPage) {
+    private Page getNextPageFromLastRecord(TransactionFilterCriteria criteria, List<PdxInstance> sortedTransactions, PdxInstance lastTransactionFromPreviousPage) {
         if (lastTransactionFromPreviousPage == null) { //always expect last record on pages after first
             throw new IllegalArgumentException("Need last record from previous page for getting pages beyond first page");
         }
-        int index = firstIndexMoreThanOrEqual(criteria.getSortByField(), sortedTransactions, lastTransactionFromPreviousPage);
+        int index = firstIndexAfter(lastTransactionFromPreviousPage, sortedTransactions, criteria.getSortByField(), criteria.getSortOrder());
         if (index == -1) { // no more records from this node. Return empty list
             return new Page(criteria.getRequestedPage(), new ArrayList(), -1);
         }
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPageStartingAt(criteria.getRequestedPage(), index);
     }
 
-    private Page firstPage(TransactionSearchCriteria criteria, List<PdxInstance> sortedTransactions) {
+    private Page firstPage(TransactionFilterCriteria criteria, List<PdxInstance> sortedTransactions) {
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPage(1);
     }
 
-    private int firstIndexMoreThanOrEqual(TransactionSortField sortByField, List<PdxInstance> sortedTransactions, PdxInstance lastTransactionFromPreviousPage) {
+
+    /**
+     * Get first index after the last transaction based on the field comparator.
+     * The check if > 0 or < 0 needs to be done based on the ascending order soring or descending order sorting.
+     *
+     */
+    private int firstIndexAfter(PdxInstance lastTransactionFromPreviousPage, List<PdxInstance> sortedTransactions, TransactionSortField sortByField, SortOrder sortOrder) {
         for (int i = 0; i < sortedTransactions.size(); i++) {
-            if (sortByField.getComparator().compare(sortedTransactions.get(i), lastTransactionFromPreviousPage) > 0) {
+            Comparator<Object> comparator = sortByField.getComparator();
+            SortOrderBasedComparatorDecorator sortOrderBasedWrapper = new SortOrderBasedComparatorDecorator(sortOrder, comparator);
+            if (sortOrderBasedWrapper.isNext(sortedTransactions.get(i), lastTransactionFromPreviousPage)) {
                 return i;
             }
         }
@@ -121,7 +131,7 @@ public class TransactionsFunction  implements Function {
      */
     private class SearchCriteriaWrapper {
         private FunctionContext context;
-        private TransactionSearchCriteria searchCriteria;
+        private TransactionFilterCriteria searchCriteria;
         private PdxInstance lastRecord;
 
         public SearchCriteriaWrapper(FunctionContext context) {
@@ -130,15 +140,15 @@ public class TransactionsFunction  implements Function {
             if (arguments instanceof PdxInstance) {
                 PdxInstance criteriaPdxInstance = (PdxInstance) this.context.getArguments();
                 lastRecord = (PdxInstance) criteriaPdxInstance.getField("lastRecord"); //pick up last record pdx instance before converting to Java Object
-                searchCriteria = (TransactionSearchCriteria) criteriaPdxInstance.getObject();
+                searchCriteria = (TransactionFilterCriteria) criteriaPdxInstance.getObject();
 
-            } else if (arguments instanceof TransactionSearchCriteria) {
-               searchCriteria = (TransactionSearchCriteria) arguments;
+            } else if (arguments instanceof TransactionFilterCriteria) {
+               searchCriteria = (TransactionFilterCriteria) arguments;
                lastRecord = (PdxInstance) searchCriteria.getLastRecord();
             }
         }
 
-        public TransactionSearchCriteria getSearchCriteria() {
+        public TransactionFilterCriteria getSearchCriteria() {
             return searchCriteria;
         }
 

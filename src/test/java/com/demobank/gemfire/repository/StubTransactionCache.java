@@ -3,7 +3,7 @@ package com.demobank.gemfire.repository;
 import com.demobank.gemfire.functions.Page;
 import com.demobank.gemfire.functions.PageBuilder;
 import com.demobank.gemfire.functions.TransactionSortField;
-import com.demobank.gemfire.functions.TransactionSearchCriteria;
+import com.demobank.gemfire.functions.TransactionFilterCriteria;
 import com.demobank.gemfire.models.Transaction;
 import com.demobank.gemfire.models.TransactionKey;
 
@@ -26,13 +26,13 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
     }
 
     @Override
-    public List<Page<Transaction>> getTransactions(TransactionSearchCriteria criteria) {
+    public List<Page<Transaction>> getTransactions(TransactionFilterCriteria criteria) {
         List<Page<Transaction>> pages = new ArrayList();
         pages.add(getPage(criteria));
         return pages;
     }
 
-    public int getTotalRecords(TransactionSearchCriteria criteria) {
+    public int getTotalRecords(TransactionFilterCriteria criteria) {
         List<Transaction> result = getAllTransactionsFor(criteria);
         return result.size();
     }
@@ -43,7 +43,7 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
     }
 
 
-    public Page getPage(TransactionSearchCriteria criteria) {
+    public Page getPage(TransactionFilterCriteria criteria) {
         //sort by amount
         List<Transaction> result = getAllTransactionsFor(criteria);
 
@@ -57,7 +57,7 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
         return getNextPageFromLastRecord(criteria, sortedTransactions);
     }
 
-    private Page getNextPageFromLastRecord(TransactionSearchCriteria criteria, List<Transaction> sortedTransactions) {
+    private Page getNextPageFromLastRecord(TransactionFilterCriteria criteria, List<Transaction> sortedTransactions) {
         Object lastRecord = criteria.getLastRecord();
         Transaction lastTransactionFromPreviousPage = (Transaction) lastRecord;
         int index = firstIndexMoreThanOrEqual(criteria.getSortByField(), sortedTransactions, lastTransactionFromPreviousPage);
@@ -67,7 +67,7 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPageStartingAt(criteria.getRequestedPage(), index);
     }
 
-    private Page firstPage(TransactionSearchCriteria criteria, List<Transaction> sortedTransactions) {
+    private Page firstPage(TransactionFilterCriteria criteria, List<Transaction> sortedTransactions) {
         return new PageBuilder(criteria.getRecordsPerPage(), sortedTransactions).getPage(1);
     }
 
@@ -80,7 +80,7 @@ public class StubTransactionCache implements TransactionCache<Transaction> {
         return -1;
     }
 
-    private List<Transaction> getAllTransactionsFor(TransactionSearchCriteria criteria) {
+    private List<Transaction> getAllTransactionsFor(TransactionFilterCriteria criteria) {
         List<TransactionKey> keys = criteria.getKeys();
         List<Transaction> result = new ArrayList();
         for (TransactionKey key : keys) {

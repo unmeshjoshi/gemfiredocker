@@ -1,7 +1,7 @@
 package com.demobank.gemfire.repository;
 
 import com.demobank.gemfire.functions.Page;
-import com.demobank.gemfire.functions.TransactionSearchCriteria;
+import com.demobank.gemfire.functions.TransactionFilterCriteria;
 import com.demobank.gemfire.functions.TransactionsFunction;
 import com.demobank.gemfire.models.Transaction;
 import com.demobank.gemfire.models.TransactionKey;
@@ -30,7 +30,7 @@ public class GemfireTransactionCache implements TransactionCache<PdxInstanceImpl
 
 
     @Override
-    public List<Page<PdxInstanceImpl>> getTransactions(TransactionSearchCriteria criteria) {
+    public List<Page<PdxInstanceImpl>> getTransactions(TransactionFilterCriteria criteria) {
         List result = executeFunction(criteria);
         return collectPagesFromServers(result);
     }
@@ -43,7 +43,7 @@ public class GemfireTransactionCache implements TransactionCache<PdxInstanceImpl
         return mergedResult;
     }
 
-    private List executeFunction(TransactionSearchCriteria criteria) {
+    private List executeFunction(TransactionFilterCriteria criteria) {
         TransactionsFunction function = new TransactionsFunction();
         Execution execution = FunctionService.onRegion(transactionRegion).withArgs(criteria);
         return (List) execution.execute(function).getResult();

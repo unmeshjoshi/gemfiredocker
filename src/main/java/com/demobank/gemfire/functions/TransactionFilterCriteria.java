@@ -5,38 +5,39 @@ import com.demobank.gemfire.models.TransactionKey;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransactionSearchCriteria<T> {
+public class TransactionFilterCriteria<T> {
     private List<String> accountIds;
     private List<String> dates;
     private String transactionType;
     private int recordsPerPage = 100;
     private int requestedPage;
     private TransactionSortField sortByField = TransactionSortField.AMOUNT;
+    private SortOrder sortOrder = SortOrder.ASCENDING;
     //This is always going to be Java object and not PdxInstance for remote invocation.
     // Can not mix Java types and Pdx Instances. For embedded cache tests, it can be PdxInstance, as it is not serialized to servers.
 
     T lastRecord;
 
 
-    public TransactionSearchCriteria(){}
+    public TransactionFilterCriteria(){}
 
-    public TransactionSearchCriteria(List<String> accountIds, List<String> dates, int requestedPage) {
+    public TransactionFilterCriteria(List<String> accountIds, List<String> dates, int requestedPage) {
         this.accountIds = accountIds;
         this.dates = dates;
         this.requestedPage = requestedPage;
     }
 
-    public TransactionSearchCriteria withRecordsPerPage(int recordsPerPage) {
+    public TransactionFilterCriteria withRecordsPerPage(int recordsPerPage) {
         this.recordsPerPage = recordsPerPage;
         return this;
     }
 
-    public TransactionSearchCriteria withTransactionType(String transactionType) {
+    public TransactionFilterCriteria withTransactionType(String transactionType) {
         this.transactionType = transactionType;
         return this;
     }
 
-    public TransactionSearchCriteria withLastRecord(T lastRecord) {
+    public TransactionFilterCriteria withLastRecord(T lastRecord) {
         this.lastRecord = lastRecord;
         return this;
     }
@@ -65,6 +66,10 @@ public class TransactionSearchCriteria<T> {
         return sortByField;
     }
 
+    public SortOrder getSortOrder() {
+        return sortOrder;
+    }
+
     public List<TransactionKey> getKeys() {
         List<String> accountIds = getAccountIds();
 
@@ -87,8 +92,8 @@ public class TransactionSearchCriteria<T> {
         return lastRecord;
     }
 
-    public TransactionSearchCriteria nextPage(T lastRecord) {
-        return new TransactionSearchCriteria(accountIds, dates, requestedPage + 1).withRecordsPerPage(recordsPerPage)
+    public TransactionFilterCriteria nextPage(T lastRecord) {
+        return new TransactionFilterCriteria(accountIds, dates, requestedPage + 1).withRecordsPerPage(recordsPerPage)
                 .withLastRecord(lastRecord);
     }
 }

@@ -15,11 +15,11 @@ public class RemoteTransactionSearchTest extends BaseGemfireTest {
     @Test
     public void getTransactionsForGivenCriteria() {
         TransactionCache transactionCache = new GemfireTransactionCache(ClientCacheProvider.instance);
-        TransactionSearchCriteria transactionSearchCriteria
-                = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388888"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
+        TransactionFilterCriteria transactionFilterCriteria
+                = new TransactionFilterCriteria(Arrays.asList("9952388700", "8977388888"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
                 .withRecordsPerPage(10);
 
-        List<Page> pagesFromServers = transactionCache.getTransactions(transactionSearchCriteria);
+        List<Page> pagesFromServers = transactionCache.getTransactions(transactionFilterCriteria);
         assertEquals(2, pagesFromServers.size());
 
         assertEquals(10, pagesFromServers.get(0).getResults().size());

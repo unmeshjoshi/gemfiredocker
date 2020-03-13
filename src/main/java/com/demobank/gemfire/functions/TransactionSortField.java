@@ -6,13 +6,17 @@ import org.apache.geode.pdx.PdxInstance;
 import java.math.BigInteger;
 import java.util.Comparator;
 
+enum SortOrder {
+    DESCENDING, ASCENDING
+}
+
 public enum TransactionSortField {
     AMOUNT((Object t1, Object t2) -> {
-        int compareResult = getAmount(t2).compareTo(getAmount(t1));
+        int compareResult = getAmount(t1).compareTo(getAmount(t2));
         if (compareResult != 0) {
             return compareResult;
         }
-        return getTranKey(t2).compareTo(getTranKey(t1));
+        return getTranKey(t1).compareTo(getTranKey(t2));
     });
 
     public Comparator<Object> getComparator() {

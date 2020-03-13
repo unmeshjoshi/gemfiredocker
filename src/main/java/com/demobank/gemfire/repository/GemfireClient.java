@@ -3,7 +3,7 @@ package com.demobank.gemfire.repository;
 import com.demobank.gemfire.functions.Page;
 import com.demobank.gemfire.functions.PageBuilder;
 import com.demobank.gemfire.functions.TransactionSortField;
-import com.demobank.gemfire.functions.TransactionSearchCriteria;
+import com.demobank.gemfire.functions.TransactionFilterCriteria;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,7 +15,7 @@ class GemfireClient<T> {
         this.transactionCache = transactionCache;
     }
 
-    public Page<T> getTransactions(TransactionSearchCriteria criteria) {
+    public Page<T> getTransactions(TransactionFilterCriteria criteria) {
         List<Page<T>> pagesFromServers = transactionCache.getTransactions(criteria);
         List<T> allTransactions = mergeAllRecords(pagesFromServers);
         List<T> sortedTransactions = sort(allTransactions, criteria.getSortByField());

@@ -29,11 +29,11 @@ public class EmbeddedTransactionSearchTest extends BaseGemfireTest {
 
     @Test
     public void getTransactionsForGivenCriteria() {
-        TransactionSearchCriteria transactionSearchCriteria
-                = new TransactionSearchCriteria(Arrays.asList("9952388700", "8977388700"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
+        TransactionFilterCriteria transactionFilterCriteria
+                = new TransactionFilterCriteria(Arrays.asList("9952388700", "8977388700"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
                     .withRecordsPerPage(10);
 
-        List<Page> transactions = transactionCache.getTransactions(transactionSearchCriteria);
+        List<Page> transactions = transactionCache.getTransactions(transactionFilterCriteria);
         assertEquals(1, transactions.size());
         assertEquals(10, transactions.get(0).getResults().size());
     }
