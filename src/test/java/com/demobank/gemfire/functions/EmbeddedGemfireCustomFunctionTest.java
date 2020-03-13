@@ -18,7 +18,7 @@ public class EmbeddedGemfireCustomFunctionTest extends BaseGemfireTest {
         Cache cache = createCache();
         positionCache = new PositionCacheImpl(cache);
         transactionCache = new GemfireTransactionCache(cache);
-        new DataGenerator().seedPositions(positionCache);
+        new DataGenerator().seedPositions("acctKey", positionCache);
     }
 
     @Test

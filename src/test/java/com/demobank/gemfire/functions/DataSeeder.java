@@ -12,7 +12,7 @@ public class DataSeeder {
         PositionCacheImpl positionCache = new PositionCacheImpl(cache);
         TransactionCache transactionCache = new GemfireTransactionCache(cache);
         DataGenerator dataGenerator = new DataGenerator();
-        dataGenerator.seedPositions(positionCache);
+        dataGenerator.seedPositions("89123891283", positionCache);
         dataGenerator.seedTransactions(transactionCache, "2020-02-02", "9952388700");
         dataGenerator.seedTransactions(transactionCache,"2020-02-03", "8977388888");
     }

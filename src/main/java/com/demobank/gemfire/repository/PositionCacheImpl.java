@@ -28,12 +28,13 @@ public class PositionCacheImpl implements PositionCache {
         return (Integer) ((List) result.getResult()).get(0);
     }
 
-    public void add(Position position) {
-        positionRegion.put(position.key(), position);
-    }
-
     public void clear() {
         positionRegion.clear();
+    }
+
+    @Override
+    public void add(String acctKey, List<Position> positions) {
+        positionRegion.put(acctKey, positions);
     }
 }
 

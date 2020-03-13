@@ -25,7 +25,7 @@ public class EmbeddedGemfireClientTest extends BaseGemfireTest {
         positionCache = new PositionCacheImpl(cache);
         transactionCache = new GemfireTransactionCache(cache);
         DataGenerator dataGenerator = new DataGenerator();
-        dataGenerator.seedPositions(positionCache);
+        dataGenerator.seedPositions("acctKey", positionCache);
         dataGenerator.seedTransactions(transactionCache, "2020-02-02", "9952388700");
         dataGenerator.seedTransactions(transactionCache, "2020-02-03", "8977388700");
     }
