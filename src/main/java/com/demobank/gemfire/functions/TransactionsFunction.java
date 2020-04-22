@@ -5,15 +5,14 @@ import org.apache.geode.cache.Region;
 import org.apache.geode.cache.execute.Function;
 import org.apache.geode.cache.execute.FunctionContext;
 import org.apache.geode.cache.execute.RegionFunctionContext;
+import org.apache.geode.cache.execute.ResultSender;
 import org.apache.geode.cache.partition.PartitionRegionHelper;
 import org.apache.geode.internal.logging.LogService;
 import org.apache.geode.pdx.PdxInstance;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,23 +25,26 @@ public class TransactionsFunction  implements Function {
     @Override
     public void execute(FunctionContext context) {
         RegionFunctionContext rctx = (RegionFunctionContext) context;
-
         //Need to get searchcriteria. In case of embedded tests its Java object and in case of remote tests its PdxInstance.
         SearchCriteriaWrapper searchCriteriaWrapper = new SearchCriteriaWrapper(context);
-
         TransactionFilterCriteria searchCriteria = searchCriteriaWrapper.getSearchCriteria();
         PdxInstance lastRecord = searchCriteriaWrapper.getLastRecord();
 
         Region<String, List<PdxInstance>> localData = getLocalData(rctx);
         Page page = getPage(searchCriteria, localData, lastRecord);
-
         LogService.getLogger().info("Function returning result " + this.getClass() + " loaded from " + this.getClass().getClassLoader());
         sendResult(rctx, page);
     }
 
+    private int randomInt() {
+        int i = new Random(1000).nextInt();
+        return i > 0 ? i : -1 * i;
+    }
+
     private void sendResult(RegionFunctionContext rctx, Page page) {
         LogService.getLogger().info("Returning page " + page.getResults());
-        rctx.getResultSender().lastResult(page);
+        ResultSender resultSender = rctx.getResultSender();
+        resultSender.lastResult(page);
     }
 
     public Page getPage(TransactionFilterCriteria criteria, Region<String, List<PdxInstance>> localData, PdxInstance lastRecord) {
@@ -52,6 +54,11 @@ public class TransactionsFunction  implements Function {
         if (criteria.getRequestedPage() == 1) {
             return firstPage(criteria, sortedTransactions);
         }
+        //simulate realtime api call.
+        Map ibmPrices = new RealtimeStockClient().getStockPrices("IBM");
+        LogService.getLogger().info("Got sock prices " + ibmPrices);
+
+
 
         return getNextPageFromLastRecord(criteria, sortedTransactions, lastRecord);
     }
@@ -155,5 +162,13 @@ public class TransactionsFunction  implements Function {
         public PdxInstance getLastRecord() {
             return lastRecord;
         }
+    }
+
+
+    private String getStackTraceFor(Exception e) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream p = new PrintStream(baos);
+        e.printStackTrace(p);
+        return new String(baos.toByteArray());
     }
 }

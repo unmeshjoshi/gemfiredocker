@@ -11,7 +11,7 @@ import org.apache.geode.cache.execute.ResultCollector;
 
 import java.util.List;
 
-public class PositionCacheImpl implements PositionCache {
+public class PositionCacheImpl implements PositionCache<Position> {
 
     private final Region positionRegion;
     private GemFireCache clientCache;

@@ -40,7 +40,7 @@ class StubClientSideTransactionCache implements TransactionCache<Transaction>  {
     }
 }
 
-public class MultiServerSortingAndPaginationTest {
+public class MultiServerTransactionsSortingAndPaginationTest {
 
     @Test
     public void shouldPaginateResultsOnMultipleServers() {

@@ -9,6 +9,11 @@ import org.apache.geode.pdx.PdxInstance;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,27 +28,34 @@ public class RemoteGemfireClientTest {
     public void seedData() {
         DataSeeder.main(new String[0]);
     }
+
     //Make sure to run DataSeeder app before running this test.
     //Transactions and Positions regions are partitioned and can not be programmatically cleared
     @Test
-    public void getTransactionsForGivenCriteria() {
-        TransactionCache transactionCache = new GemfireTransactionCache(ClientCacheProvider.instance);
-        GemfireClient gemfireClient = new GemfireClient(transactionCache);
+    public void getTransactionsForGivenCriteria() throws InterruptedException {
+        while (true) {
+            Thread.sleep(200);
 
-        //For Remote invocation. The last record has to be always Java object Transaction and not PdxInstance.
-        //It will be serialized to server as PdxInstance and server will get that as a PdxInstance.
-        //See how nextPage is set in getAllPages method below.
-        TransactionFilterCriteria<Transaction> transactionFilterCriteria
-                = new TransactionFilterCriteria(Arrays.asList("9952388700", "8977388888"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
-                .withRecordsPerPage(10);
 
-        List<Page<PdxInstance>> allPages = getAllPages(gemfireClient, transactionFilterCriteria);
+            TransactionCache transactionCache = new GemfireTransactionCache(ClientCacheProvider.instance);
 
-        assertEquals(20, allPages.size());
+            GemfireClient gemfireClient = new GemfireClient(transactionCache);
 
-        assertAllPagesAreOfSize(transactionFilterCriteria.getRecordsPerPage(), allPages);
+            //For Remote invocation. The last record has to be always Java object Transaction and not PdxInstance.
+            //It will be serialized to server as PdxInstance and server will get that as a PdxInstance.
+            //See how nextPage is set in getAllPages method below.
+            TransactionFilterCriteria<Transaction> transactionFilterCriteria
+                    = new TransactionFilterCriteria(Arrays.asList("9952388700", "8977388888"), Arrays.asList("2020-02-02", "2020-02-03"), 1)
+                    .withRecordsPerPage(10);
 
-        assertPageSequence(allPages);
+            List<Page<PdxInstance>> allPages = getAllPages(gemfireClient, transactionFilterCriteria);
+
+            assertEquals(20, allPages.size());
+
+            assertAllPagesAreOfSize(transactionFilterCriteria.getRecordsPerPage(), allPages);
+
+            assertPageSequence(allPages);
+        }
     }
 
     private void assertAllPagesAreOfSize(int recordsPerPage, List<Page<PdxInstance>> allPages) {
@@ -65,8 +77,11 @@ public class RemoteGemfireClientTest {
         List<Page<PdxInstance>> pageList = new ArrayList();
         Page<PdxInstance> startingPage = gemfireClient.getTransactions(transactionFilterCriteria);
         while (startingPage.getResults().size() >= transactionFilterCriteria.getRecordsPerPage()) {
-            TransactionFilterCriteria nextPageCriteria = transactionFilterCriteria.nextPage((Transaction) ((PdxInstance)startingPage.getLastRecord()).getObject());
+            TransactionFilterCriteria nextPageCriteria = transactionFilterCriteria.nextPage((Transaction) ((PdxInstance) startingPage.getLastRecord()).getObject());
+            long start = System.nanoTime();
             Page<PdxInstance> nextPage = gemfireClient.getTransactions(nextPageCriteria);
+            long end = System.nanoTime();
+            System.out.println("Time taken for page " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms");
             pageList.add(startingPage);
             startingPage = nextPage;
         }

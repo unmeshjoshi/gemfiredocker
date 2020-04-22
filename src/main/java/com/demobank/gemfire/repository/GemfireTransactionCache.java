@@ -46,7 +46,7 @@ public class GemfireTransactionCache implements TransactionCache<PdxInstanceImpl
     private List executeFunction(TransactionFilterCriteria criteria) {
         TransactionsFunction function = new TransactionsFunction();
         Execution execution = FunctionService.onRegion(transactionRegion).withArgs(criteria);
-        return (List) execution.execute(function).getResult();
+        return (List) execution.execute(function.getId()).getResult();
     }
 
     private Page getPageInstance(Object o) {

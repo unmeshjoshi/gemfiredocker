@@ -33,7 +33,7 @@ services:
       - -c
       - |
         ./wait_for.sh locator1 1099
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "start server --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server1/gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="locator1[9009]" --server-port=8085 --dir=/data/server1"
+        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "start server --J=-Xdebug --J=-Xrunjdwp:transport=dt_socket,address=8080,server=y,suspend=y --J=-javaagent:/newrelic/newrelic.jar --J=-DDistributionManager.MAX_FE_THREADS=25 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server1/gc1.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server1 --mcast-port=0 --locators="locator1[9009]" --server-port=8085 --dir=/data/server1"
         tail -100 -f /data/server1/server1.log
   server2:
     image: gemfire973
@@ -53,7 +53,7 @@ services:
       - -c
       - |
         /wait_for.sh locator1 1099
-        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "start server --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server2/gc2.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="locator1[9009]" --server-port=8085 --dir=/data/server2"
+        gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "start server --J=-javaagent:/newrelic/newrelic.jar --J=-DDistributionManager.MAX_FE_THREADS=25 --J=-XX:InitialHeapSize=4g --J=-XX:MaxHeapSize=4g --J=-XX:NewRatio=3 --J=-XX:SurvivorRatio=1 --J=-XX:+UseConcMarkSweepGC --J=-XX:+UseParNewGC  --J=-Xloggc:/data/server2/gc2.log --J=-XX:+PrintGC --J=-XX:+PrintGCApplicationConcurrentTime --J=-XX:+PrintGCApplicationStoppedTime --J=-XX:+PrintGCDateStamps --J=-XX:+PrintGCDetails --J=-XX:+PrintGCTimeStamps --J=-XX:+PrintTenuringDistribution --name=server2 --mcast-port=0 --locators="locator1[9009]" --server-port=8085 --dir=/data/server2"
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=Positions --type=PARTITION_PERSISTENT"
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=Transactions --type=PARTITION_PERSISTENT"
         gfsh -e "connect --user=test --password=test --jmx-manager=locator1[1099]" -e "create region --name=MarketPrices --type=PARTITION_PERSISTENT"
